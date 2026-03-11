@@ -201,6 +201,75 @@ function LoginScreen({onLogin}) {
   );
 }
 
+// ---- SUMMARY TABLE ----
+function SummaryTable({data, year, prevYear}) {
+  const {sorted, thProps} = useSortable(data, 'month', 'desc');
+  return (
+    <div style={{overflowX:"auto"}}>
+      <table>
+        <thead><tr>
+          <th {...thProps('month')} style={{textAlign:'left'}}>Период</th>
+          <th {...thProps('lflOp')}>LFL ОП</th>
+          <th {...thProps('opThis')}>ОП {year}</th>
+          <th {...thProps('opPrev')}>ОП {prevYear}</th>
+          <th {...thProps('shopCountThis')}>Магазинов</th>
+          <th {...thProps('shopCountPrev')}>Маг. пр.г.</th>
+          <th {...thProps('lflRev')}>LFL Выручка</th>
+          <th {...thProps('revThis')}>Выручка {year}</th>
+          <th {...thProps('revPrev')}>Выручка {prevYear}</th>
+        </tr></thead>
+        <tbody>
+          {sorted.length===0
+            ? <tr><td colSpan={9} style={{textAlign:"center",color:"#a0936a",padding:40}}>Нет данных за выбранный период</td></tr>
+            : sorted.map(r=>(
+              <tr key={r.month}>
+                <td style={{fontWeight:600,color:"#e8dfc8"}}>{r.monthName}</td>
+                <td><PctBadge value={r.lflOp}/></td>
+                <td style={{color:"#e8dfc8"}}>{fmt(r.opThis)}</td>
+                <td style={{color:"#a0936a"}}>{fmt(r.opPrev)}</td>
+                <td style={{color:"#d4af37"}}>{r.shopCountThis??'—'}</td>
+                <td style={{color:"#a0936a"}}>{r.shopCountPrev??'—'}</td>
+                <td><PctBadge value={r.lflRev}/></td>
+                <td style={{color:"#e8dfc8"}}>{fmt(r.revThis)}</td>
+                <td style={{color:"#a0936a"}}>{fmt(r.revPrev)}</td>
+              </tr>
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ---- SHOPS TABLE ----
+function ShopsTable({data, year, prevYear}) {
+  const {sorted, thProps} = useSortable(data, 'revThis', 'desc');
+  return (
+    <div style={{overflowX:"auto"}}>
+      <table>
+        <thead><tr>
+          <th {...thProps('name')} style={{textAlign:'left'}}>Магазин</th>
+          <th {...thProps('cluster')}>Куст</th>
+          <th {...thProps('lflRev')}>LFL Выручка</th>
+          <th {...thProps('revThis')}>Выручка {year}</th>
+          <th {...thProps('revPrev')}>Выручка {prevYear}</th>
+        </tr></thead>
+        <tbody>
+          {sorted.map(r=>(
+            <tr key={r.name}>
+              <td style={{fontWeight:600,color:"#e8dfc8"}}>{r.name}</td>
+              <td style={{color:"#d4af37",fontSize:12}}>{r.cluster}</td>
+              <td><PctBadge value={r.lflRev}/></td>
+              <td style={{color:"#e8dfc8"}}>{fmt(r.revThis)}</td>
+              <td style={{color:"#a0936a"}}>{fmt(r.revPrev)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 // ---- CLUSTER TABLE ----
 function ClusterTable({shops, year, prevYear}) {
   const {sorted, thProps} = useSortable(shops,'revThis','desc');
@@ -451,68 +520,9 @@ function Dashboard() {
 
         {loading ? <Spinner/> : (<>
 
-          {activeTab==="summary" && (()=>{
-            const {sorted:sData, thProps:sth} = useSortable(monthlyData,'month','desc');
-            return <div style={{overflowX:"auto"}}>
-              <table>
-                <thead><tr>
-                  <th {...sth('month')} style={{textAlign:'left'}}>Период</th>
-                  <th {...sth('lflOp')}>LFL ОП</th>
-                  <th {...sth('opThis')}>ОП {year}</th>
-                  <th {...sth('opPrev')}>ОП {prevYear}</th>
-                  <th {...sth('shopCountThis')}>Магазинов</th>
-                  <th {...sth('shopCountPrev')}>Маг. пр.г.</th>
-                  <th {...sth('lflRev')}>LFL Выручка</th>
-                  <th {...sth('revThis')}>Выручка {year}</th>
-                  <th {...sth('revPrev')}>Выручка {prevYear}</th>
-                </tr></thead>
-                <tbody>
-                  {sData.length===0
-                    ? <tr><td colSpan={9} style={{textAlign:"center",color:"#a0936a",padding:40}}>Нет данных за выбранный период</td></tr>
-                    : sData.map(r=>(
-                      <tr key={r.month}>
-                        <td style={{fontWeight:600,color:"#e8dfc8"}}>{r.monthName}</td>
-                        <td><PctBadge value={r.lflOp}/></td>
-                        <td style={{color:"#e8dfc8"}}>{fmt(r.opThis)}</td>
-                        <td style={{color:"#a0936a"}}>{fmt(r.opPrev)}</td>
-                        <td style={{color:"#d4af37"}}>{r.shopCountThis??'—'}</td>
-                        <td style={{color:"#a0936a"}}>{r.shopCountPrev??'—'}</td>
-                        <td><PctBadge value={r.lflRev}/></td>
-                        <td style={{color:"#e8dfc8"}}>{fmt(r.revThis)}</td>
-                        <td style={{color:"#a0936a"}}>{fmt(r.revPrev)}</td>
-                      </tr>
-                    ))
-                  }
-                </tbody>
-              </table>
-            </div>;
-          })()}
+          {activeTab==="summary" && <SummaryTable data={monthlyData} year={year} prevYear={prevYear}/>}
 
-          {activeTab==="shops" && (()=>{
-            const {sorted:shData, thProps:shth} = useSortable(shopData,'revThis','desc');
-            return <div style={{overflowX:"auto"}}>
-              <table>
-                <thead><tr>
-                  <th {...shth('name')} style={{textAlign:'left'}}>Магазин</th>
-                  <th {...shth('cluster')}>Куст</th>
-                  <th {...shth('lflRev')}>LFL Выручка</th>
-                  <th {...shth('revThis')}>Выручка {year}</th>
-                  <th {...shth('revPrev')}>Выручка {prevYear}</th>
-                </tr></thead>
-                <tbody>
-                  {shData.map(r=>(
-                    <tr key={r.name}>
-                      <td style={{fontWeight:600,color:"#e8dfc8"}}>{r.name}</td>
-                      <td style={{color:"#d4af37",fontSize:12}}>{r.cluster}</td>
-                      <td><PctBadge value={r.lflRev}/></td>
-                      <td style={{color:"#e8dfc8"}}>{fmt(r.revThis)}</td>
-                      <td style={{color:"#a0936a"}}>{fmt(r.revPrev)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>;
-          })()}
+          {activeTab==="shops" && <ShopsTable data={shopData} year={year} prevYear={prevYear}/>}
 
           {activeTab==="clusters" && (
             <div style={{display:"flex",flexDirection:"column",gap:36}}>
