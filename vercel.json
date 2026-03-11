@@ -1,8 +1,11 @@
 {
   "version": 2,
   "functions": {
-    "api/query.js": {
-      "maxDuration": 15
-    }
-  }
+    "api/query.js": { "maxDuration": 15 },
+    "api/sheets.js": { "maxDuration": 10 }
+  },
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/(.*)", "dest": "/public/index.html" }
+  ]
 }

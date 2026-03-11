@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Сильвер — Относительный показатель</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Georgia','Times New Roman',serif;background:#0f0e0b;color:#e8dfc8;min-height:100vh}
+  ::-webkit-scrollbar{width:5px;height:5px}
+  ::-webkit-scrollbar-thumb{background:#d4af37;border-radius:3px}
+  table{border-collapse:collapse;width:100%}
+  th{font-family:'Georgia',serif;font-weight:400;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:#a0936a;padding:10px 14px;border-bottom:1px solid rgba(212,175,55,.15);white-space:nowrap;text-align:right}
+  th:first-child{text-align:left}
+  td{padding:11px 14px;border-bottom:1px solid rgba(255,255,255,.04);font-size:14px;text-align:right;vertical-align:middle}
+  td:first-child{text-align:left}
+  tr:hover td{background:rgba(212,175,55,.04)}
+  .tbtn{background:none;border:1px solid rgba(212,175,55,.2);color:#a0936a;padding:7px 20px;border-radius:4px;cursor:pointer;font-family:'Georgia',serif;font-size:13px;letter-spacing:.05em;transition:all .2s}
+  .tbtn:hover{border-color:#d4af37;color:#d4af37}
+  .tbtn.on{background:#d4af37;color:#0f0e0b;border-color:#d4af37;font-weight:600}
+  .tog{background:none;border:1px solid rgba(212,175,55,.2);color:#a0936a;padding:6px 16px;border-radius:4px;cursor:pointer;font-family:'Georgia',serif;font-size:12px;transition:all .2s}
+  .tog.on{background:rgba(212,175,55,.15);color:#d4af37;border-color:#d4af37}
+  .ybtn{background:none;border:none;border-bottom:2px solid transparent;color:#a0936a;padding:6px 14px;cursor:pointer;font-family:'Georgia',serif;font-size:15px;transition:all .2s}
+  .ybtn:hover{color:#d4af37}
+  .ybtn.on{color:#d4af37;border-bottom-color:#d4af37;font-weight:600}
+  @keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useCallback } = React;
+
+const PROXY_URL = "/api/query";
+const SHEETS_URL = "/api/sheets";
+const MONTHS_RU = ["Январь","Февраль","Март","Апрель","Май","Июнь","Июль","Август","Сентябрь","Октябрь","Ноябрь","Декабрь"];
+
+async function queryDB(sql) {
+  const res = await fetch(PROXY_URL, {
+    method: "POST",
+    headers: {"Content-Type":"application/json"},
+    body: JSON.stringify({sql}),
+  });
+  const json = await res.json();
+  if (json.error) throw new Error(json.error);
+  return json.data;
+}
+
+async function fetchSheet(name) {
+  const res = await fetch(`${SHEETS_URL}?sheet=${name}`);
+  if (!res.ok) throw new Error(`Sheets error: ${res.status}`);
+  const text = await res.text();
+  const lines = text.trim().split("\n");
+  const headers = lines[0].split(",").map(h => h.trim().replace(/\r/g,""));
+  return lines.slice(1).map(line => {
+    const vals = line.split(",").map(v => v.trim().replace(/\r/g,""));
+    return Object.fromEntries(headers.map((h,i) => [h, vals[i]||""]));
+  });
+}
+
+function parseShopDate(str) {
+  if (!str) return null;
+  const parts = str.split(".");
+  if (parts.length === 3) {
+    const [d,m,y] = parts;
+    return new Date(`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`);
+  }
+  return new Date(str);
+}
+
+function fmt(n) {
+  if (n === null || n === undefined || isNaN(n) || n === 0) return "—";
+  return new Intl.NumberFormat("ru-RU",{maximumFractionDigits:0}).format(n) + " ₽";
+}
+
+function fmtPct(n) {
+  if (n === null || n === undefined || isNaN(n)) return "—";
+  return `${n>0?"+":""}${Math.round(n)}%`;
+}
+
+function PctBadge({value}) {
+  if (value===null||value===undefined||isNaN(value)) return <span style={{color:"#555"}}>—</span>;
+  const color = value>=0?"#4ade80":"#f87171";
+  const bg = value>=0?"rgba(74,222,128,0.12)":"rgba(248,113,113,0.12)";
+  return <span style={{color,background:bg,borderRadius:6,padding:"2px 9px",fontWeight:700,fontSize:13}}>{fmtPct(value)}</span>;
+}
+
+function Spinner() {
+  return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:320,gap:16}}>
+      <div style={{width:44,height:44,borderRadius:"50%",border:"3px solid rgba(212,175,55,0.15)",borderTop:"3px solid #d4af37",animation:"spin 0.85s linear infinite"}}/>
+      <span style={{color:"#a0936a",fontSize:13,letterSpacing:1}}>Загрузка данных...</span>
+    </div>
+  );
+}
+
+const NOW = new Date();
+const CUR_YEAR = NOW.getFullYear();
+
+function App() {
+  const [year, setYear] = useState(CUR_YEAR);
+  const [mode, setMode] = useState("mtd");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [monthlyData, setMonthlyData] = useState([]);
+  const [shopData, setShopData] = useState([]);
+  const [clusterData, setClusterData] = useState([]);
+  const [activeTab, setActiveTab] = useState("summary");
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const [shopDaysRaw, shopClustersRaw] = await Promise.all([
+        fetchSheet("shop_days"),
+        fetchSheet("shop_clusters"),
+      ]);
+
+      const shopDaysMap = {};
+      shopDaysRaw.forEach(row => {
+        const d = parseShopDate(row.date);
+        if (!d||isNaN(d)) return;
+        const key = `${d.getFullYear()}-${d.getMonth()+1}`;
+        if (!shopDaysMap[key]) shopDaysMap[key] = {totalCount:0,days:0};
+        shopDaysMap[key].totalCount += parseInt(row.shop_count)||0;
+        shopDaysMap[key].days += 1;
+      });
+
+      const clusterMap = {};
+      shopClustersRaw.forEach(row => {
+        if (row.warehouse_name) clusterMap[row.warehouse_name.trim()] = row.cluster?.trim()||"—";
+      });
+
+      const prevYear = year - 1;
+      const maxMonth = mode==="mtd" ? NOW.getMonth()+1 : 12;
+
+      const [salesRows, shopSalesRows] = await Promise.all([
+        queryDB(`SELECT YEAR(docDate) as yr, MONTH(docDate) as mo, SUM(sum) as revenue FROM sales WHERE YEAR(docDate) IN (${year},${prevYear}) GROUP BY yr, mo`),
+        queryDB(`SELECT YEAR(docDate) as yr, MONTH(docDate) as mo, warehouseName, SUM(sum) as revenue FROM sales WHERE YEAR(docDate) IN (${year},${prevYear}) GROUP BY yr, mo, warehouseName`),
+      ]);
+
+      const byMonth = {};
+      salesRows.forEach(r => {
+        const key = `${r.yr}-${r.mo}`;
+        if (!byMonth[key]) byMonth[key] = {};
+        byMonth[key][r.yr] = parseFloat(r.revenue)||0;
+      });
+
+      const months = [];
+      for (let m=1; m<=maxMonth; m++) {
+        if (mode==="full" && year===CUR_YEAR && m>=NOW.getMonth()+1) continue;
+        const revThis = byMonth[`${year}-${m}`]?.[year]||0;
+        const revPrev = byMonth[`${prevYear}-${m}`]?.[prevYear]||0;
+        if (revThis===0 && revPrev===0) continue;
+
+        const siThis = shopDaysMap[`${year}-${m}`];
+        const siPrev = shopDaysMap[`${prevYear}-${m}`];
+        const shopCountThis = siThis?.days>0 ? Math.round(siThis.totalCount/siThis.days) : null;
+        const shopCountPrev = siPrev?.days>0 ? Math.round(siPrev.totalCount/siPrev.days) : null;
+        const opThis = shopCountThis ? revThis/shopCountThis : null;
+        const opPrev = shopCountPrev ? revPrev/shopCountPrev : null;
+
+        months.push({
+          month:m, monthName:MONTHS_RU[m-1],
+          revThis, revPrev, opThis, opPrev,
+          shopCountThis, shopCountPrev,
+          lflOp: opThis&&opPrev ? ((opThis-opPrev)/opPrev)*100 : null,
+          lflRev: revPrev ? ((revThis-revPrev)/revPrev)*100 : null,
+        });
+      }
+      setMonthlyData([...months].reverse());
+
+      const byShop = {};
+      shopSalesRows.forEach(r => {
+        const name = r.warehouseName?.trim();
+        if (!name) return;
+        if (!byShop[name]) byShop[name] = {};
+        const key = `${r.yr}-${r.mo}`;
+        if (!byShop[name][key]) byShop[name][key] = {};
+        byShop[name][key][r.yr] = parseFloat(r.revenue)||0;
+      });
+
+      const shops = Object.entries(byShop).map(([name,mdata]) => {
+        let revThis=0, revPrev=0;
+        for (let m=1; m<=maxMonth; m++) {
+          if (mode==="full"&&year===CUR_YEAR&&m>=NOW.getMonth()+1) continue;
+          revThis += mdata[`${year}-${m}`]?.[year]||0;
+          revPrev += mdata[`${prevYear}-${m}`]?.[prevYear]||0;
+        }
+        return {name, revThis, revPrev, lflRev:revPrev?((revThis-revPrev)/revPrev)*100:null, cluster:clusterMap[name]||"—"};
+      }).filter(s=>s.revThis>0||s.revPrev>0).sort((a,b)=>b.revThis-a.revThis);
+      setShopData(shops);
+
+      const cMap = {};
+      shops.forEach(s => {
+        const cl = s.cluster;
+        if (!cMap[cl]) cMap[cl] = {name:cl,revThis:0,revPrev:0,shops:[]};
+        cMap[cl].revThis += s.revThis;
+        cMap[cl].revPrev += s.revPrev;
+        cMap[cl].shops.push(s);
+      });
+      setClusterData(Object.values(cMap).map(c => ({...c, lflRev:c.revPrev?((c.revThis-c.revPrev)/c.revPrev)*100:null})));
+
+    } catch(e) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [year, mode]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const years = Array.from({length:CUR_YEAR-2022},(_,i)=>2023+i);
+
+  return (
+    <div style={{paddingBottom:60}}>
+      {/* Header */}
+      <div style={{background:"linear-gradient(135deg,#1a1608 0%,#0f0e0b 60%)",borderBottom:"1px solid rgba(212,175,55,.2)",padding:"28px 32px 22px"}}>
+        <div style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",flexWrap:"wrap",gap:20}}>
+          <div>
+            <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:6}}>
+              <span style={{fontSize:11,letterSpacing:3,color:"#d4af37",textTransform:"uppercase"}}>Сильвер</span>
+              <span style={{color:"rgba(212,175,55,.3)"}}>◆</span>
+              <span style={{fontSize:11,letterSpacing:2,color:"#a0936a",textTransform:"uppercase"}}>Аналитика продаж</span>
+            </div>
+            <h1 style={{fontSize:26,fontWeight:400,letterSpacing:1,color:"#e8dfc8"}}>Относительный показатель</h1>
+            <p style={{color:"#a0936a",fontSize:13,marginTop:4}}>Выручка / кол-во магазинов · сравнение с {year-1} годом</p>
+          </div>
+          <div style={{display:"flex",flexDirection:"column",gap:12,alignItems:"flex-end"}}>
+            <div style={{display:"flex",gap:4}}>
+              {years.map(y=><button key={y} className={`ybtn ${y===year?"on":""}`} onClick={()=>setYear(y)}>{y}</button>)}
+            </div>
+            <div style={{display:"flex",gap:8}}>
+              <button className={`tog ${mode==="mtd"?"on":""}`} onClick={()=>setMode("mtd")}>Текущий месяц (MTD)</button>
+              <button className={`tog ${mode==="full"?"on":""}`} onClick={()=>setMode("full")}>Завершённые месяцы</button>
+            </div>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:10,marginTop:22}}>
+          {[["summary","Сводка по месяцам"],["shops","Все магазины"],["clusters","Кусты"]].map(([id,label])=>(
+            <button key={id} className={`tbtn ${activeTab===id?"on":""}`} onClick={()=>setActiveTab(id)}>{label}</button>
+          ))}
+        </div>
+      </div>
+
+      <div style={{padding:"28px 32px"}}>
+        {error && (
+          <div style={{background:"rgba(248,113,113,.1)",border:"1px solid rgba(248,113,113,.3)",borderRadius:8,padding:"14px 18px",color:"#f87171",marginBottom:24,fontSize:13,display:"flex",alignItems:"center",gap:12}}>
+            <span>⚠ Ошибка: {error}</span>
+            <button onClick={load} style={{background:"rgba(248,113,113,.15)",border:"1px solid rgba(248,113,113,.3)",color:"#f87171",padding:"3px 12px",borderRadius:4,cursor:"pointer",fontSize:12,fontFamily:"Georgia,serif"}}>Повторить</button>
+          </div>
+        )}
+
+        {loading ? <Spinner/> : (<>
+
+          {activeTab==="summary" && (
+            <div style={{overflowX:"auto"}}>
+              <table>
+                <thead><tr>
+                  <th>Месяц</th><th>LFL ОП</th><th>ОП {year}</th><th>ОП {year-1}</th>
+                  <th>Магазинов</th><th>Маг. пр.г.</th><th>LFL Выручка</th><th>Выручка {year}</th><th>Выручка {year-1}</th>
+                </tr></thead>
+                <tbody>
+                  {monthlyData.length===0
+                    ? <tr><td colSpan={9} style={{textAlign:"center",color:"#a0936a",padding:40}}>Нет данных за выбранный период</td></tr>
+                    : monthlyData.map(r=>(
+                      <tr key={r.month}>
+                        <td style={{fontWeight:600,color:"#e8dfc8",letterSpacing:.3}}>{r.monthName}</td>
+                        <td><PctBadge value={r.lflOp}/></td>
+                        <td style={{color:"#e8dfc8"}}>{fmt(r.opThis)}</td>
+                        <td style={{color:"#a0936a"}}>{fmt(r.opPrev)}</td>
+                        <td style={{color:"#d4af37"}}>{r.shopCountThis??'—'}</td>
+                        <td style={{color:"#a0936a"}}>{r.shopCountPrev??'—'}</td>
+                        <td><PctBadge value={r.lflRev}/></td>
+                        <td style={{color:"#e8dfc8"}}>{fmt(r.revThis)}</td>
+                        <td style={{color:"#a0936a"}}>{fmt(r.revPrev)}</td>
+                      </tr>
+                    ))
+                  }
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {activeTab==="shops" && (
+            <div style={{overflowX:"auto"}}>
+              <table>
+                <thead><tr>
+                  <th>Магазин</th><th>Куст</th><th>LFL Выручка</th><th>Выручка {year}</th><th>Выручка {year-1}</th>
+                </tr></thead>
+                <tbody>
+                  {shopData.map(r=>(
+                    <tr key={r.name}>
+                      <td style={{fontWeight:600,color:"#e8dfc8"}}>{r.name}</td>
+                      <td style={{color:"#d4af37",fontSize:12}}>{r.cluster}</td>
+                      <td><PctBadge value={r.lflRev}/></td>
+                      <td style={{color:"#e8dfc8"}}>{fmt(r.revThis)}</td>
+                      <td style={{color:"#a0936a"}}>{fmt(r.revPrev)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+
+          {activeTab==="clusters" && (
+            <div style={{display:"flex",flexDirection:"column",gap:36}}>
+              {clusterData.map(cl=>(
+                <div key={cl.name}>
+                  <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:12,paddingBottom:10,borderBottom:"1px solid rgba(212,175,55,.2)"}}>
+                    <h2 style={{fontSize:17,fontWeight:400,letterSpacing:1,color:"#d4af37"}}>Куст {cl.name}</h2>
+                    <PctBadge value={cl.lflRev}/>
+                    <span style={{color:"#e8dfc8",fontSize:14}}>{fmt(cl.revThis)}</span>
+                    <span style={{color:"#a0936a",fontSize:13}}>vs {fmt(cl.revPrev)}</span>
+                  </div>
+                  <table>
+                    <thead><tr>
+                      <th>Магазин</th><th>LFL Выручка</th><th>Выручка {year}</th><th>Выручка {year-1}</th>
+                    </tr></thead>
+                    <tbody>
+                      {cl.shops.sort((a,b)=>b.revThis-a.revThis).map(s=>(
+                        <tr key={s.name}>
+                          <td style={{color:"#e8dfc8"}}>{s.name}</td>
+                          <td><PctBadge value={s.lflRev}/></td>
+                          <td style={{color:"#e8dfc8"}}>{fmt(s.revThis)}</td>
+                          <td style={{color:"#a0936a"}}>{fmt(s.revPrev)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
+            </div>
+          )}
+
+        </>)}
+      </div>
+
+      <div style={{padding:"14px 32px 0",borderTop:"1px solid rgba(212,175,55,.08)",marginTop:8}}>
+        <span style={{fontSize:11,color:"#3a3525",letterSpacing:1}}>СИЛЬВЕР · ОТНОСИТЕЛЬНЫЙ ПОКАЗАТЕЛЬ · {new Date().toLocaleString("ru-RU")}</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
