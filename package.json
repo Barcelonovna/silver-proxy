@@ -1,0 +1,8 @@
+{
+  "name": "silver-db-proxy",
+  "version": "1.0.0",
+  "description": "MySQL proxy for Silver jewelry store analytics",
+  "dependencies": {
+    "mysql2": "^3.6.0"
+  }
+}
