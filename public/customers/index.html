@@ -9,116 +9,76 @@
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <style>
 :root {
-  --bg:#0f0e0b; --bg2:#1a1810; --bg3:#211f14;
+  --bg:#0f0e0b; --bg2:#1a1810;
   --gold:#d4af37; --gold-dim:#a0936a;
   --text:#e8dfc8; --text-dim:#4a4535;
   --border:rgba(212,175,55,0.15);
   --green:#4ade80; --red:#f87171;
-  --green-bg:rgba(74,222,128,0.12); --red-bg:rgba(248,113,113,0.12);
-  --blue:#60a5fa; --blue-bg:rgba(96,165,250,0.12);
-  --amber:#fbbf24; --amber-bg:rgba(251,191,36,0.12);
-  --purple:#c084fc; --purple-bg:rgba(192,132,252,0.12);
+  --amber:#fbbf24; --purple:#c084fc; --blue:#60a5fa;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:var(--bg);color:var(--text);font-family:'Georgia','Times New Roman',serif;min-height:100vh}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
 
-/* HEADER */
 .hdr{background:linear-gradient(135deg,#1a1608 0%,#0f0e0b 60%);border-bottom:1px solid var(--border);padding:18px 28px 0;position:sticky;top:0;z-index:100}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
 .hdr-brand{font-size:13px;letter-spacing:3px;color:var(--gold);text-transform:uppercase}
-.hdr-years{display:flex;gap:6px}
-.ybtn{background:none;border:none;color:var(--gold-dim);font-family:inherit;font-size:13px;cursor:pointer;padding:4px 10px;border-radius:4px;transition:color .2s}
-.ybtn.on{color:var(--gold);border-bottom:2px solid var(--gold)}
-.ybtn:hover{color:var(--text)}
-.hdr-title{font-size:22px;font-weight:400;letter-spacing:1px;color:var(--text);margin-bottom:3px}
+.hdr-title{font-size:22px;font-weight:400;letter-spacing:1px;margin-bottom:3px}
 .hdr-sub{font-size:12px;color:var(--gold-dim);letter-spacing:.5px;margin-bottom:12px}
 .hdr-tabs{display:flex;gap:4px}
 .tbtn{background:none;border:none;color:var(--gold-dim);font-family:inherit;font-size:12px;letter-spacing:.5px;cursor:pointer;padding:8px 16px;border-radius:6px 6px 0 0;transition:all .2s;text-transform:uppercase}
 .tbtn.on{background:var(--gold);color:#0f0e0b;font-weight:700}
 .tbtn:hover:not(.on){color:var(--text);background:rgba(212,175,55,0.08)}
 
-/* CONTENT */
 .content{padding:24px 28px;animation:fadeIn .3s ease}
 
-/* CARDS */
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:24px}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
 .card-label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-dim);margin-bottom:8px}
-.card-value{font-size:26px;color:var(--text);font-weight:400;letter-spacing:.5px}
+.card-value{font-size:26px;font-weight:400;letter-spacing:.5px}
 .card-sub{font-size:12px;color:var(--gold-dim);margin-top:4px}
 .card-accent{border-top:2px solid var(--gold)}
 
-/* TABLES */
-.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
-.tbl-head{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.tbl-head h3{font-size:13px;font-weight:400;letter-spacing:.5px;color:var(--gold)}
+.sec{font-size:12px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin:22px 0 12px;padding-bottom:7px;border-bottom:1px solid var(--border)}
+
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:18px}
+.tbl-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.tbl-head h3{font-size:13px;font-weight:400;letter-spacing:.5px;color:var(--gold);flex-shrink:0}
 .tbl-head span{font-size:11px;color:var(--gold-dim)}
 table{width:100%;border-collapse:collapse}
-th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-dim);padding:10px 14px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--gold-dim);padding:9px 13px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
 th:first-child{text-align:left}
-td{font-size:13px;padding:10px 14px;text-align:right;border-bottom:1px solid rgba(212,175,55,0.06);color:var(--text)}
+td{font-size:13px;padding:9px 13px;text-align:right;border-bottom:1px solid rgba(212,175,55,0.05);color:var(--text)}
 td:first-child{text-align:left;color:var(--gold-dim)}
 tr:last-child td{border-bottom:none}
-tr:hover td{background:rgba(212,175,55,0.04)}
+tr:hover td{background:rgba(212,175,55,0.03)}
 .sortable{cursor:pointer;user-select:none}
 .sortable:hover{color:var(--text)}
 .sortable.asc::after{content:" ▲";font-size:9px}
 .sortable.desc::after{content:" ▼";font-size:9px}
 
-/* BADGES */
-.badge{display:inline-block;border-radius:6px;padding:2px 9px;font-weight:700;font-size:12px}
-.badge-green{color:var(--green);background:var(--green-bg)}
-.badge-red{color:var(--red);background:var(--red-bg)}
-.badge-blue{color:var(--blue);background:var(--blue-bg)}
-.badge-amber{color:var(--amber);background:var(--amber-bg)}
-.badge-purple{color:var(--purple);background:var(--purple-bg)}
-.badge-dim{color:var(--gold-dim);background:rgba(160,147,106,0.12)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
+@media(max-width:860px){.two{grid-template-columns:1fr}}
 
-/* SEGMENT COLORS */
-.seg-vip{color:#fbbf24}
-.seg-loyal{color:#4ade80}
-.seg-sleeping{color:#60a5fa}
-.seg-gift{color:#f87171}
-.seg-new{color:#c084fc}
-.seg-rare{color:#a0936a}
+.info{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.18);border-radius:8px;padding:13px 16px;font-size:12px;color:var(--gold-dim);line-height:1.7;margin-bottom:18px}
+.info strong{color:var(--gold)}
 
-/* SECTION TITLES */
-.section-title{font-size:13px;letter-spacing:2px;text-transform:uppercase;color:var(--gold-dim);margin:24px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-
-/* TWO COLS */
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px}
-@media(max-width:900px){.two-col{grid-template-columns:1fr}}
-
-/* SEGMENT LEGEND */
-.seg-legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:18px}
-.seg-pill{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px}
-.seg-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-
-/* SMS TAB */
-.sms-export{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px}
-.sms-filters{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:16px;align-items:center}
-.seg-btn{background:none;border:1px solid var(--border);color:var(--gold-dim);font-family:inherit;font-size:12px;cursor:pointer;padding:6px 14px;border-radius:20px;transition:all .2s}
+.seg-btn{background:none;border:1px solid var(--border);color:var(--gold-dim);font-family:inherit;font-size:12px;cursor:pointer;padding:5px 13px;border-radius:20px;transition:all .2s;margin:3px}
 .seg-btn.on{border-color:var(--gold);color:var(--gold);background:rgba(212,175,55,0.08)}
 .seg-btn:hover:not(.on){border-color:var(--gold-dim);color:var(--text)}
-.export-btn{background:var(--gold);color:#0f0e0b;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:8px 18px;border-radius:6px;letter-spacing:.5px;margin-left:auto}
+
+.export-btn{background:var(--gold);color:#0f0e0b;border:none;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;padding:7px 16px;border-radius:6px;letter-spacing:.5px}
 .export-btn:hover{background:#c9a832}
-.phone-list{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:12px;font-size:12px;color:var(--gold-dim);max-height:200px;overflow-y:auto;font-family:monospace;line-height:1.8;word-break:break-all}
+.export-btn.outline{background:transparent;border:1px solid var(--gold);color:var(--gold)}
+.export-btn.outline:hover{background:rgba(212,175,55,0.1)}
 
-/* BAR CHART */
-.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
-.bar-label{font-size:12px;color:var(--gold-dim);width:140px;text-align:right;flex-shrink:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.bar-track{flex:1;background:rgba(212,175,55,0.08);border-radius:3px;height:18px;overflow:hidden}
-.bar-fill{height:100%;background:linear-gradient(90deg,var(--gold) 0%,#c9a832 100%);border-radius:3px;transition:width .6s ease;display:flex;align-items:center;padding-left:6px}
-.bar-val{font-size:11px;color:#0f0e0b;font-weight:700;white-space:nowrap}
+.phone-list{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px 12px;font-size:11px;color:var(--gold-dim);max-height:140px;overflow-y:auto;font-family:monospace;line-height:1.9;word-break:break-all;margin-top:10px}
 
-/* FOOTER */
 .footer{background:var(--bg2);border-top:1px solid var(--border);padding:12px 28px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-dim);letter-spacing:.5px;margin-top:40px}
-.logout-btn{background:none;border:1px solid var(--border);color:var(--gold-dim);font-family:inherit;font-size:11px;cursor:pointer;padding:4px 12px;border-radius:4px;letter-spacing:.5px}
+.logout-btn{background:none;border:1px solid var(--border);color:var(--gold-dim);font-family:inherit;font-size:11px;cursor:pointer;padding:4px 12px;border-radius:4px}
 .logout-btn:hover{color:var(--text);border-color:var(--gold-dim)}
 
-/* LOGIN */
 .login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,#1a1608 0%,#0f0e0b 70%)}
 .login-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:40px 44px;width:340px;text-align:center}
 .login-logo{font-size:11px;letter-spacing:4px;color:var(--gold);text-transform:uppercase;margin-bottom:24px}
@@ -130,95 +90,77 @@ tr:hover td{background:rgba(212,175,55,0.04)}
 .login-btn:hover{background:#c9a832}
 .login-err{color:var(--red);font-size:12px;margin-top:8px}
 
-.info-box{background:rgba(212,175,55,0.06);border:1px solid rgba(212,175,55,0.2);border-radius:8px;padding:14px 18px;font-size:12px;color:var(--gold-dim);line-height:1.7;margin-bottom:20px}
-.info-box strong{color:var(--gold)}
+.err{color:var(--red);padding:16px;font-size:13px;background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.2);border-radius:8px;margin:20px;line-height:1.6}
 </style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const {useState, useEffect, useCallback, useMemo} = React;
+const {useState, useEffect, useMemo} = React;
 
-const PROXY  = "https://silver-proxy.vercel.app/api/query";
-const AUTH   = "https://silver-proxy.vercel.app/api/auth";
-const EXCL   = "warehouseName NOT IN ('ИМ-курьеры','Склад ОЗОН','ИМ-отгрузка')";
+const PROXY = "https://silver-proxy.vercel.app/api/query";
+const AUTH  = "https://silver-proxy.vercel.app/api/auth";
+const EXCL  = "warehouseName NOT IN ('ИМ-курьеры','Склад ОЗОН','ИМ-отгрузка')";
 
-/* ── helpers ── */
-const fmt  = n => n==null?'—':Number(n).toLocaleString('ru-RU');
-const fmtR = n => n==null?'—':Number(n).toLocaleString('ru-RU',{maximumFractionDigits:0})+'₽';
+const fmt  = n => (n==null||n===''||isNaN(Number(n))) ? '—' : Number(n).toLocaleString('ru-RU');
+const fmtR = n => (n==null||n===''||isNaN(Number(n))) ? '—' : Number(n).toLocaleString('ru-RU',{maximumFractionDigits:0})+'₽';
 const now  = new Date();
 
-async function queryDB(sql) {
-  const r = await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql})});
-  const d = await r.json();
-  if (d.error) throw new Error(d.error);
-  return d.data || [];
+async function q(sql) {
+  let text = '';
+  try {
+    const r = await fetch(PROXY, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({sql})
+    });
+    text = await r.text();
+    const d = JSON.parse(text);
+    if (d.error) throw new Error(d.error);
+    return d.data || [];
+  } catch(e) {
+    if(e instanceof SyntaxError) throw new Error('Сервер вернул не JSON: ' + text.slice(0,100));
+    throw e;
+  }
 }
 
-/* ── Spinner ── */
-function Spinner() {
-  return <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:300,gap:16}}>
-    <div style={{width:44,height:44,borderRadius:'50%',border:'3px solid rgba(212,175,55,0.15)',borderTop:'3px solid #d4af37',animation:'spin 0.85s linear infinite'}}/>
-    <span style={{color:'#a0936a',fontSize:13,letterSpacing:1}}>Загрузка данных...</span>
+function Spinner({text='Загрузка...'}) {
+  return <div style={{display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',height:260,gap:14}}>
+    <div style={{width:40,height:40,borderRadius:'50%',border:'3px solid rgba(212,175,55,0.15)',borderTop:'3px solid #d4af37',animation:'spin 0.85s linear infinite'}}/>
+    <span style={{color:'#a0936a',fontSize:13,letterSpacing:1}}>{text}</span>
   </div>;
 }
 
-/* ── PctBadge ── */
-function PctBadge({value}) {
-  if (value==null||isNaN(value)) return <span style={{color:'#555'}}>—</span>;
-  const c=value>=0?'#4ade80':'#f87171', bg=value>=0?'rgba(74,222,128,0.12)':'rgba(248,113,113,0.12)';
-  return <span style={{color:c,background:bg,borderRadius:6,padding:'2px 9px',fontWeight:700,fontSize:12}}>
-    {value>0?'+':''}{Math.round(value)}%
-  </span>;
-}
-
-/* ── useSortable ── */
 function useSortable(data, defKey, defDir='desc') {
   const [k,setK]=useState(defKey);
   const [d,setD]=useState(defDir);
   const sorted=useMemo(()=>{
-    if(!k)return data;
+    if(!k||!data||!data.length) return data||[];
     return [...data].sort((a,b)=>{
-      const av=a[k],bv=b[k];
-      if(av==null)return 1; if(bv==null)return -1;
-      const cmp=typeof av==='string'?av.localeCompare(bv,'ru'):av-bv;
+      const av=a[k], bv=b[k];
+      if(av==null) return 1; if(bv==null) return -1;
+      const cmp = typeof av==='string' ? av.localeCompare(bv,'ru') : Number(av)-Number(bv);
       return d==='asc'?cmp:-cmp;
     });
   },[data,k,d]);
   const toggle=key=>{if(k===key)setD(x=>x==='asc'?'desc':'asc');else{setK(key);setD('desc');}};
-  const thProps=key=>({className:`sortable${k===key?' '+d:''}`,onClick:()=>toggle(key),style:{cursor:'pointer'}});
-  return {sorted,thProps};
+  const thP=key=>({className:`sortable${k===key?' '+d:''}`,onClick:()=>toggle(key)});
+  return {sorted,thP};
 }
 
-/* ── BarChart ── */
-function BarChart({rows, labelKey, valueKey, maxVal}) {
-  const mx = maxVal || Math.max(...rows.map(r=>r[valueKey]||0));
-  return <div style={{padding:'4px 0'}}>
-    {rows.map((r,i)=><div key={i} className="bar-row">
-      <div className="bar-label" title={r[labelKey]}>{r[labelKey]}</div>
-      <div className="bar-track">
-        <div className="bar-fill" style={{width:`${mx>0?(r[valueKey]||0)/mx*100:0}%`}}>
-          <span className="bar-val">{fmt(r[valueKey])}</span>
-        </div>
-      </div>
-    </div>)}
-  </div>;
-}
-
-/* ════════════════════ LOGIN ════════════════════ */
 function LoginScreen({onLogin}) {
   const [login,setLogin]=useState('');
   const [pass,setPass]=useState('');
   const [err,setErr]=useState('');
   const [loading,setLoading]=useState(false);
   const submit=async()=>{
-    setLoading(true);setErr('');
-    try{
+    setLoading(true); setErr('');
+    try {
       const r=await fetch(AUTH,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password:pass})});
       const d=await r.json();
       if(d.ok){sessionStorage.setItem('silver_auth','1');onLogin();}
       else setErr('Неверный логин или пароль');
-    }catch{setErr('Ошибка соединения');}
+    } catch{ setErr('Ошибка соединения'); }
     setLoading(false);
   };
   return <div className="login-wrap">
@@ -234,750 +176,516 @@ function LoginScreen({onLogin}) {
   </div>;
 }
 
-/* ════════════════════ TAB: ОБЗОР ════════════════════ */
+/* ══════ TAB 1: ОБЗОР ══════ */
 function TabOverview() {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState('');
+  const [st, setSt] = useState({loading:true,err:'',d:null});
 
   useEffect(()=>{
     (async()=>{
       try {
-        setLoading(true);
+        setSt(s=>({...s,loading:true,err:''}));
 
-        // 1. Общая статистика по клиентам с картами лояльности
-        const [stats, genderAge, topShops, topCollections, freqDist, giftStats, monthlyActivity] = await Promise.all([
-          // Сводка
-          queryDB(`
-            SELECT
-              COUNT(DISTINCT lc.clientPhone) as total_cards,
-              COUNT(DISTINCT CASE WHEN s.clientPhone IS NOT NULL THEN lc.clientPhone END) as buyers,
-              COUNT(DISTINCT CASE WHEN s.clientPhone IS NOT NULL AND s.price > 1 THEN lc.clientPhone END) as real_buyers,
-              COUNT(DISTINCT CASE WHEN s.clientPhone IS NOT NULL AND s.price <= 1 THEN lc.clientPhone END) as gift_only_candidates
-            FROM loyaltyCards lc
-            LEFT JOIN sales s ON s.clientPhone = lc.clientPhone AND ${EXCL}
-          `),
-          // Пол и возраст (среди реальных покупателей)
-          queryDB(`
-            SELECT
-              lc.gender,
-              CASE
-                WHEN TIMESTAMPDIFF(YEAR, lc.birthday, CURDATE()) < 25 THEN 'до 25'
-                WHEN TIMESTAMPDIFF(YEAR, lc.birthday, CURDATE()) < 35 THEN '25–34'
-                WHEN TIMESTAMPDIFF(YEAR, lc.birthday, CURDATE()) < 45 THEN '35–44'
-                WHEN TIMESTAMPDIFF(YEAR, lc.birthday, CURDATE()) < 55 THEN '45–54'
-                WHEN TIMESTAMPDIFF(YEAR, lc.birthday, CURDATE()) >= 55 THEN '55+'
-                ELSE 'не указан'
-              END as age_group,
-              COUNT(DISTINCT lc.clientPhone) as cnt,
-              ROUND(AVG(sub.total_revenue)) as avg_revenue,
-              ROUND(AVG(sub.visits)) as avg_visits
-            FROM loyaltyCards lc
-            JOIN (
-              SELECT clientPhone, SUM(CASE WHEN price>1 THEN sum ELSE 0 END) as total_revenue,
-                     COUNT(DISTINCT CASE WHEN price>1 THEN docID END) as visits
-              FROM sales WHERE ${EXCL} AND price > 1
-              GROUP BY clientPhone
-            ) sub ON sub.clientPhone = lc.clientPhone
-            WHERE lc.gender IS NOT NULL AND lc.gender != ''
-            GROUP BY lc.gender, age_group
-            ORDER BY lc.gender, cnt DESC
-          `),
-          // Топ магазинов по числу уникальных покупателей
-          queryDB(`
-            SELECT warehouseName,
-                   COUNT(DISTINCT clientPhone) as uniq_buyers,
-                   COUNT(DISTINCT docID) as visits,
-                   ROUND(SUM(CASE WHEN price>1 THEN sum ELSE 0 END)) as revenue,
-                   ROUND(AVG(CASE WHEN price>1 THEN sum END)) as avg_check
-            FROM sales
-            WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone != ''
-            GROUP BY warehouseName
-            ORDER BY uniq_buyers DESC
-            LIMIT 12
-          `),
-          // Топ коллекций среди покупателей с картами
-          queryDB(`
-            SELECT s.collectionArticle as collection,
-                   COUNT(DISTINCT s.clientPhone) as uniq_buyers,
-                   SUM(CASE WHEN s.price>1 THEN s.quantity ELSE 0 END) as qty,
-                   ROUND(SUM(CASE WHEN s.price>1 THEN s.sum ELSE 0 END)) as revenue
-            FROM sales s
-            JOIN loyaltyCards lc ON lc.clientPhone = s.clientPhone
-            WHERE ${EXCL} AND s.price > 1 AND s.collectionArticle IS NOT NULL AND s.collectionArticle != ''
-            GROUP BY s.collectionArticle
-            ORDER BY revenue DESC
-            LIMIT 15
-          `),
-          // Распределение по числу покупок (частота)
-          queryDB(`
-            SELECT
-              CASE
-                WHEN real_visits = 0 THEN '0 — только подарки'
-                WHEN real_visits = 1 THEN '1 покупка'
-                WHEN real_visits = 2 THEN '2 покупки'
-                WHEN real_visits BETWEEN 3 AND 5 THEN '3–5 покупок'
-                WHEN real_visits BETWEEN 6 AND 10 THEN '6–10 покупок'
-                ELSE '11+ покупок'
-              END as freq_group,
-              COUNT(*) as clients,
-              ROUND(AVG(total_rev)) as avg_rev
-            FROM (
-              SELECT clientPhone,
-                     COUNT(DISTINCT CASE WHEN price>1 THEN docID END) as real_visits,
-                     SUM(CASE WHEN price>1 THEN sum ELSE 0 END) as total_rev
-              FROM sales WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone != ''
-              GROUP BY clientPhone
-            ) t
-            GROUP BY freq_group
-            ORDER BY MIN(real_visits)
-          `),
-          // Статистика по подаркам
-          queryDB(`
-            SELECT
-              COUNT(DISTINCT clientPhone) as got_gifts,
-              COUNT(DISTINCT CASE WHEN rr.real_visits > 0 THEN clientPhone END) as gift_then_buy,
-              COUNT(DISTINCT CASE WHEN rr.real_visits = 0 THEN clientPhone END) as gift_only,
-              ROUND(AVG(rr.gift_visits)) as avg_gift_visits,
-              ROUND(AVG(CASE WHEN rr.real_visits>0 THEN rr.gift_visits END)) as avg_gift_before_buy
-            FROM (
-              SELECT clientPhone,
-                     COUNT(DISTINCT CASE WHEN price<=1 THEN docID END) as gift_visits,
-                     COUNT(DISTINCT CASE WHEN price>1  THEN docID END) as real_visits
-              FROM sales WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone != '' AND price IS NOT NULL
-              GROUP BY clientPhone
-              HAVING gift_visits > 0
-            ) rr
-          `),
-          // Активность по месяцам (последние 12)
-          queryDB(`
-            SELECT DATE_FORMAT(docDate,'%Y-%m') as ym,
-                   COUNT(DISTINCT CASE WHEN price>1 THEN clientPhone END) as active_buyers,
-                   COUNT(DISTINCT CASE WHEN price<=1 THEN clientPhone END) as gift_takers,
-                   ROUND(SUM(CASE WHEN price>1 THEN sum ELSE 0 END)) as revenue
-            FROM sales
-            WHERE ${EXCL} AND docDate >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
-              AND clientPhone IS NOT NULL AND clientPhone != ''
-            GROUP BY ym ORDER BY ym
-          `)
-        ]);
+        // Простые независимые запросы — без тяжёлых подзапросов
+        const totalCards = await q(`SELECT COUNT(*) as n FROM loyaltyCards`);
 
-        setData({stats:stats[0], genderAge, topShops, topCollections, freqDist, giftStats:giftStats[0], monthlyActivity});
-      } catch(e) { setErr(e.message); }
-      setLoading(false);
+        const byPhone = await q(`
+          SELECT clientPhone,
+            COUNT(DISTINCT docID) as all_v,
+            SUM(CASE WHEN price > 1 THEN 1 ELSE 0 END) as real_rows,
+            SUM(CASE WHEN price <= 1 AND price > 0 THEN 1 ELSE 0 END) as gift_rows,
+            SUM(CASE WHEN price > 1 THEN sum ELSE 0 END) as rev
+          FROM sales
+          WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone != ''
+          GROUP BY clientPhone
+          LIMIT 50000
+        `);
+
+        // Фильтруем только тех, у кого есть карта — делаем в JS, чтобы не грузить базу
+        const cards = await q(`SELECT clientPhone FROM loyaltyCards`);
+        const cardSet = new Set(cards.map(r=>r.clientPhone));
+        const withCard = byPhone.filter(r=>cardSet.has(r.clientPhone));
+
+        const buyers    = withCard.filter(r=>Number(r.real_rows)>0).length;
+        const giftOnly  = withCard.filter(r=>Number(r.real_rows)===0 && Number(r.gift_rows)>0).length;
+        const giftAny   = withCard.filter(r=>Number(r.gift_rows)>0).length;
+        const giftThenBuy = withCard.filter(r=>Number(r.gift_rows)>0 && Number(r.real_rows)>0).length;
+        const convRate  = giftAny>0?(giftThenBuy/giftAny*100).toFixed(1):0;
+
+        // Магазины
+        const shops = await q(`
+          SELECT warehouseName,
+                 COUNT(DISTINCT clientPhone) as buyers,
+                 ROUND(AVG(CASE WHEN price>1 THEN price END)) as avg_price
+          FROM sales
+          WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone != ''
+          GROUP BY warehouseName ORDER BY buyers DESC
+        `);
+
+        // Коллекции (без heavy join)
+        const cols = await q(`
+          SELECT collectionArticle as col,
+                 COUNT(DISTINCT clientPhone) as buyers,
+                 ROUND(SUM(sum)) as revenue
+          FROM sales
+          WHERE ${EXCL} AND price>1
+            AND collectionArticle IS NOT NULL AND collectionArticle != ''
+          GROUP BY collectionArticle
+          ORDER BY revenue DESC LIMIT 12
+        `);
+
+        // Динамика по месяцам
+        const monthly = await q(`
+          SELECT DATE_FORMAT(docDate,'%Y-%m') as ym,
+                 COUNT(DISTINCT CASE WHEN price>1 THEN clientPhone END) as buyers,
+                 COUNT(DISTINCT CASE WHEN price<=1 AND price>0 THEN clientPhone END) as gifters,
+                 ROUND(SUM(CASE WHEN price>1 THEN sum ELSE 0 END)) as revenue
+          FROM sales
+          WHERE ${EXCL} AND docDate >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+          GROUP BY ym ORDER BY ym
+        `);
+
+        // Пол
+        const genders = await q(`
+          SELECT gender, COUNT(*) as cnt
+          FROM loyaltyCards
+          WHERE gender IS NOT NULL AND gender != ''
+          GROUP BY gender ORDER BY cnt DESC
+        `);
+
+        // Распределение частоты (в JS)
+        const freqMap = {};
+        withCard.forEach(r => {
+          const rv = Number(r.real_rows)||0;
+          let g, ord;
+          if(rv===0)      { g='0 — только подарки'; ord=0; }
+          else if(rv===1) { g='1 покупка';           ord=1; }
+          else if(rv===2) { g='2 покупки';           ord=2; }
+          else if(rv<=5)  { g='3–5 покупок';         ord=3; }
+          else if(rv<=10) { g='6–10 покупок';        ord=4; }
+          else            { g='11+ покупок';          ord=5; }
+          if(!freqMap[g]) freqMap[g]={label:g,cnt:0,rev:0,ord};
+          freqMap[g].cnt++;
+          freqMap[g].rev += Number(r.rev)||0;
+        });
+        const freqDist = Object.values(freqMap).sort((a,b)=>a.ord-b.ord);
+
+        setSt({loading:false,err:'',d:{
+          totalCards:Number(totalCards[0].n),
+          buyers,giftOnly,giftAny,giftThenBuy,convRate,
+          freqDist,shops,collections:cols,monthly,genders
+        }});
+      } catch(e) {
+        setSt({loading:false,err:e.message,d:null});
+      }
     })();
-  }, []);
+  },[]);
 
-  if (loading) return <Spinner/>;
-  if (err) return <div style={{color:'var(--red)',padding:20}}>Ошибка: {err}</div>;
-  if (!data) return null;
-
-  const {stats, genderAge, topShops, topCollections, freqDist, giftStats, monthlyActivity} = data;
-
-  const convRate = giftStats.got_gifts > 0 ? (giftStats.gift_then_buy / giftStats.got_gifts * 100).toFixed(1) : 0;
-
-  // группируем genderAge по полу
-  const females = genderAge.filter(r=>r.gender==='Женский'||r.gender==='ж'||r.gender==='Ж'||r.gender==='F'||r.gender==='female');
-  const males   = genderAge.filter(r=>r.gender==='Мужской'||r.gender==='м'||r.gender==='М'||r.gender==='M'||r.gender==='male');
-  const other   = genderAge.filter(r=>!females.includes(r)&&!males.includes(r));
+  if(st.loading) return <Spinner text="Загружаем аналитику покупателей..."/>;
+  if(st.err) return <div className="err">Ошибка загрузки:<br/><code>{st.err}</code></div>;
+  const {totalCards,buyers,giftOnly,giftAny,giftThenBuy,convRate,freqDist,shops,collections,monthly,genders}=st.d;
 
   return <div className="content">
-    {/* KPI Cards */}
     <div className="cards">
       <div className="card card-accent">
-        <div className="card-label">Всего карт лояльности</div>
-        <div className="card-value">{fmt(stats.total_cards)}</div>
+        <div className="card-label">Карт лояльности</div>
+        <div className="card-value">{fmt(totalCards)}</div>
         <div className="card-sub">уникальных телефонов</div>
       </div>
       <div className="card">
-        <div className="card-label">Хоть раз покупали</div>
-        <div className="card-value">{fmt(stats.buyers)}</div>
-        <div className="card-sub">{stats.total_cards>0?Math.round(stats.buyers/stats.total_cards*100):0}% от всех карт</div>
+        <div className="card-label">Покупали хоть раз</div>
+        <div className="card-value">{fmt(buyers)}</div>
+        <div className="card-sub">{totalCards>0?Math.round(buyers/totalCards*100):0}% от всех карт</div>
       </div>
       <div className="card">
-        <div className="card-label">Реальные покупки (>1₽)</div>
-        <div className="card-value">{fmt(stats.real_buyers)}</div>
-        <div className="card-sub">платили за товар</div>
-      </div>
-      <div className="card">
-        <div className="card-label">Конверсия халявщиков</div>
-        <div className="card-value">{convRate}%</div>
-        <div className="card-sub">взяли подарок → потом купили</div>
+        <div className="card-label">Только подарки</div>
+        <div className="card-value" style={{color:'var(--red)'}}>{fmt(giftOnly)}</div>
+        <div className="card-sub">ни одной реальной покупки</div>
       </div>
       <div className="card">
         <div className="card-label">Получили подарок</div>
-        <div className="card-value">{fmt(giftStats.got_gifts)}</div>
-        <div className="card-sub">из них только подарки: {fmt(giftStats.gift_only)}</div>
+        <div className="card-value">{fmt(giftAny)}</div>
+        <div className="card-sub">из них купили: {fmt(giftThenBuy)}</div>
+      </div>
+      <div className="card">
+        <div className="card-label">Конверсия халявщиков</div>
+        <div className="card-value" style={{color:'var(--green)'}}>{convRate}%</div>
+        <div className="card-sub">взяли подарок → потом купили</div>
       </div>
     </div>
 
-    {/* Подарки */}
-    <div className="info-box">
-      <strong>📊 Статистика подарочных визитов:</strong> Из <strong>{fmt(giftStats.got_gifts)}</strong> клиентов, 
-      которые брали подарки — <strong>{fmt(giftStats.gift_then_buy)}</strong> ({convRate}%) в итоге совершили реальную покупку.
-      Среднее число подарочных визитов до первой покупки: <strong>{giftStats.avg_gift_before_buy || '—'}</strong>.
-      Чистых «халявщиков» (только подарки, никогда не покупали): <strong>{fmt(giftStats.gift_only)}</strong>.
+    <div className="info">
+      <strong>Ключевой факт:</strong> из <strong>{fmt(giftAny)}</strong> получивших подарок — 
+      купили потом <strong>{fmt(giftThenBuy)}</strong> ({convRate}%). 
+      Чистых «халявщиков»: <strong>{fmt(giftOnly)}</strong>.
     </div>
 
-    {/* Частота покупок */}
-    <div className="section-title">Распределение по числу покупок</div>
+    <div className="sec">Распределение по числу покупок</div>
     <div className="tbl-wrap">
-      <div className="tbl-head"><h3>Сколько раз покупали</h3><span>по уникальным клиентам с телефоном</span></div>
+      <div className="tbl-head"><h3>Клиенты с картой лояльности</h3></div>
       <table>
         <thead><tr>
           <th style={{textAlign:'left'}}>Группа</th>
-          <th>Клиентов</th>
-          <th>Доля</th>
-          <th>Средняя выручка</th>
+          <th>Клиентов</th><th>Доля</th><th>Суммарная выручка</th>
         </tr></thead>
-        <tbody>
-          {freqDist.map((r,i)=>{
-            const total = freqDist.reduce((a,x)=>a+(x.clients||0),0);
-            return <tr key={i}>
-              <td>{r.freq_group}</td>
-              <td>{fmt(r.clients)}</td>
-              <td>{total>0?Math.round(r.clients/total*100):0}%</td>
-              <td>{r.avg_rev>0?fmtR(r.avg_rev):'—'}</td>
-            </tr>;
-          })}
-        </tbody>
+        <tbody>{freqDist.map((r,i)=>{
+          const tot=freqDist.reduce((a,x)=>a+x.cnt,0);
+          return <tr key={i}>
+            <td>{r.label}</td>
+            <td>{fmt(r.cnt)}</td>
+            <td>{tot>0?Math.round(r.cnt/tot*100):0}%</td>
+            <td>{r.rev>0?fmtR(r.rev):'—'}</td>
+          </tr>;
+        })}</tbody>
       </table>
     </div>
 
-    <div className="two-col">
-      {/* Топ магазинов */}
+    <div className="two">
       <div className="tbl-wrap">
         <div className="tbl-head"><h3>Покупатели по магазинам</h3></div>
         <table>
-          <thead><tr>
-            <th style={{textAlign:'left'}}>Магазин</th>
-            <th>Покупателей</th>
-            <th>Ср. чек</th>
-          </tr></thead>
-          <tbody>
-            {topShops.map((r,i)=><tr key={i}>
-              <td>{r.warehouseName}</td>
-              <td>{fmt(r.uniq_buyers)}</td>
-              <td>{fmtR(r.avg_check)}</td>
-            </tr>)}
-          </tbody>
+          <thead><tr><th style={{textAlign:'left'}}>Магазин</th><th>Покупателей</th><th>Ср. цена</th></tr></thead>
+          <tbody>{shops.map((r,i)=><tr key={i}><td>{r.warehouseName}</td><td>{fmt(r.buyers)}</td><td>{fmtR(r.avg_price)}</td></tr>)}</tbody>
         </table>
       </div>
-
-      {/* Топ коллекций */}
       <div className="tbl-wrap">
-        <div className="tbl-head"><h3>Топ коллекций</h3><span>по выручке с карточников</span></div>
+        <div className="tbl-head"><h3>По полу</h3></div>
         <table>
-          <thead><tr>
-            <th style={{textAlign:'left'}}>Коллекция</th>
-            <th>Покупателей</th>
-            <th>Выручка</th>
-          </tr></thead>
-          <tbody>
-            {topCollections.slice(0,10).map((r,i)=><tr key={i}>
-              <td>{r.collection||'—'}</td>
-              <td>{fmt(r.uniq_buyers)}</td>
-              <td>{fmtR(r.revenue)}</td>
-            </tr>)}
-          </tbody>
+          <thead><tr><th style={{textAlign:'left'}}>Пол</th><th>Клиентов</th><th>Доля</th></tr></thead>
+          <tbody>{genders.map((r,i)=>{
+            const tot=genders.reduce((a,x)=>a+Number(x.cnt),0);
+            return <tr key={i}><td>{r.gender}</td><td>{fmt(r.cnt)}</td><td>{tot>0?Math.round(r.cnt/tot*100):0}%</td></tr>;
+          })}</tbody>
         </table>
       </div>
     </div>
 
-    {/* Активность по месяцам */}
-    <div className="section-title">Активность по месяцам (последние 12)</div>
     <div className="tbl-wrap">
-      <div className="tbl-head"><h3>Динамика клиентов с картами</h3></div>
+      <div className="tbl-head"><h3>Топ коллекций</h3><span>по выручке</span></div>
       <table>
-        <thead><tr>
-          <th style={{textAlign:'left'}}>Месяц</th>
-          <th>Активных покупателей</th>
-          <th>Взяли подарок</th>
-          <th>Выручка</th>
-        </tr></thead>
-        <tbody>
-          {monthlyActivity.map((r,i)=><tr key={i}>
-            <td>{r.ym}</td>
-            <td>{fmt(r.active_buyers)}</td>
-            <td>{fmt(r.gift_takers)}</td>
-            <td>{fmtR(r.revenue)}</td>
-          </tr>)}
-        </tbody>
+        <thead><tr><th style={{textAlign:'left'}}>Коллекция</th><th>Покупателей</th><th>Выручка</th></tr></thead>
+        <tbody>{collections.map((r,i)=><tr key={i}><td>{r.col||'—'}</td><td>{fmt(r.buyers)}</td><td>{fmtR(r.revenue)}</td></tr>)}</tbody>
       </table>
     </div>
 
-    {/* Пол и возраст */}
-    {genderAge.length > 0 && <>
-      <div className="section-title">Аудитория: пол и возраст</div>
-      <div className="tbl-wrap">
-        <div className="tbl-head"><h3>Реальные покупатели по полу и возрасту</h3><span>только покупки &gt;1₽</span></div>
-        <table>
-          <thead><tr>
-            <th style={{textAlign:'left'}}>Пол</th>
-            <th style={{textAlign:'left'}}>Возраст</th>
-            <th>Клиентов</th>
-            <th>Ср. выручка на клиента</th>
-            <th>Ср. визитов</th>
-          </tr></thead>
-          <tbody>
-            {genderAge.map((r,i)=><tr key={i}>
-              <td>{r.gender}</td>
-              <td>{r.age_group}</td>
-              <td>{fmt(r.cnt)}</td>
-              <td>{fmtR(r.avg_revenue)}</td>
-              <td>{r.avg_visits}</td>
-            </tr>)}
-          </tbody>
-        </table>
-      </div>
-    </>}
+    <div className="sec">Динамика последних 12 месяцев</div>
+    <div className="tbl-wrap">
+      <div className="tbl-head"><h3>Активность клиентов</h3></div>
+      <table>
+        <thead><tr><th style={{textAlign:'left'}}>Месяц</th><th>Покупателей</th><th>Взяли подарок</th><th>Выручка</th></tr></thead>
+        <tbody>{monthly.map((r,i)=><tr key={i}><td>{r.ym}</td><td>{fmt(r.buyers)}</td><td>{fmt(r.gifters)}</td><td>{fmtR(r.revenue)}</td></tr>)}</tbody>
+      </table>
+    </div>
   </div>;
 }
 
-/* ════════════════════ TAB: RFM ════════════════════ */
+/* ══════ TAB 2: RFM ══════ */
 function TabRFM() {
-  const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState('');
-  const [search, setSearch] = useState('');
+  const [rows,setRows]=useState([]);
+  const [cardRows,setCardRows]=useState([]);
+  const [loading,setLoading]=useState(true);
+  const [err,setErr]=useState('');
+  const [search,setSearch]=useState('');
+  const [selSeg,setSelSeg]=useState('all');
 
   useEffect(()=>{
     (async()=>{
       try {
         setLoading(true);
-        // RFM для каждого клиента с картой лояльности
-        const data = await queryDB(`
-          SELECT
-            s.clientPhone,
-            lc.gender,
-            TIMESTAMPDIFF(YEAR, lc.birthday, CURDATE()) as age,
-            DATEDIFF(CURDATE(), MAX(CASE WHEN s.price>1 THEN s.docDate END)) as recency_days,
-            COUNT(DISTINCT CASE WHEN s.price>1 THEN s.docID END) as frequency,
-            ROUND(SUM(CASE WHEN s.price>1 THEN s.sum ELSE 0 END)) as monetary,
-            ROUND(AVG(CASE WHEN s.price>1 THEN s.sum END)) as avg_item,
-            COUNT(DISTINCT CASE WHEN s.price<=1 THEN s.docID END) as gift_count,
-            MAX(s.docDate) as last_visit,
-            COUNT(DISTINCT s.warehouseName) as shops_count
-          FROM sales s
-          JOIN loyaltyCards lc ON lc.clientPhone = s.clientPhone
-          WHERE ${EXCL} AND s.clientPhone IS NOT NULL AND s.clientPhone != ''
-          GROUP BY s.clientPhone, lc.gender, lc.birthday
-          HAVING (frequency > 0 OR gift_count > 0)
+        // Берём данные продаж по телефонам
+        const sales = await q(`
+          SELECT clientPhone,
+            DATEDIFF(CURDATE(), MAX(CASE WHEN price>1 THEN docDate END)) as recency,
+            COUNT(DISTINCT CASE WHEN price>1 THEN docID END) as freq,
+            ROUND(SUM(CASE WHEN price>1 THEN sum ELSE 0 END)) as monetary,
+            COUNT(DISTINCT CASE WHEN price<=1 AND price>0 THEN docID END) as gifts
+          FROM sales
+          WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone != ''
+          GROUP BY clientPhone
           ORDER BY monetary DESC
-          LIMIT 2000
+          LIMIT 5000
         `);
+        // Список карточников
+        const cards = await q(`SELECT clientPhone FROM loyaltyCards`);
+        const cardSet = new Set(cards.map(r=>r.clientPhone));
+        const filtered = sales.filter(r=>cardSet.has(r.clientPhone));
 
-        // Назначаем сегменты
-        const withSeg = data.map(r => {
-          let segment, segColor;
-          const f = r.frequency || 0;
-          const rec = r.recency_days;
-          const m = r.monetary || 0;
-          const g = r.gift_count || 0;
-
-          if (f >= 5 && rec <= 90) { segment = 'VIP'; segColor = 'seg-vip'; }
-          else if (f >= 2 && rec <= 120) { segment = 'Лояльный'; segColor = 'seg-loyal'; }
-          else if (f >= 1 && rec > 120 && rec <= 365) { segment = 'Спящий'; segColor = 'seg-sleeping'; }
-          else if (f >= 1 && rec > 365) { segment = 'Потерянный'; segColor = 'seg-red'; }
-          else if (f === 0 && g >= 1) { segment = 'Только подарки'; segColor = 'seg-gift'; }
-          else if (f === 1 && rec <= 120) { segment = 'Новый'; segColor = 'seg-new'; }
-          else { segment = 'Редкий'; segColor = 'seg-rare'; }
-
-          return {...r, segment, segColor};
+        const withSeg = filtered.map(r=>{
+          const f=Number(r.freq)||0, rc=Number(r.recency)||9999, g=Number(r.gifts)||0;
+          let seg;
+          if(f>=5 && rc<=90)       seg='VIP';
+          else if(f>=3 && rc<=180) seg='Лояльный';
+          else if(f>=1 && rc<=180) seg='Активный';
+          else if(f>=1 && rc<=365) seg='Спящий';
+          else if(f>=1 && rc>365)  seg='Потерянный';
+          else if(f===0 && g>0)    seg='Только подарки';
+          else                     seg='Нет покупок';
+          return {...r,seg,f,rc,g};
         });
-
         setRows(withSeg);
-      } catch(e) { setErr(e.message); }
+      } catch(e){ setErr(e.message); }
       setLoading(false);
     })();
-  }, []);
+  },[]);
 
-  const filtered = useMemo(()=>{
-    if (!search) return rows;
-    return rows.filter(r => r.clientPhone?.includes(search) || r.segment?.includes(search));
-  }, [rows, search]);
+  const SEG_C={'VIP':'#fbbf24','Лояльный':'#4ade80','Активный':'#a3e635','Спящий':'#60a5fa','Потерянный':'#f87171','Только подарки':'#f87171','Нет покупок':'#a0936a'};
 
-  const {sorted, thProps} = useSortable(filtered, 'monetary');
+  const segSum=useMemo(()=>{
+    const m={};
+    rows.forEach(r=>{if(!m[r.seg])m[r.seg]={seg:r.seg,cnt:0,rev:0};m[r.seg].cnt++;m[r.seg].rev+=Number(r.monetary)||0;});
+    return Object.values(m).sort((a,b)=>b.cnt-a.cnt);
+  },[rows]);
 
-  // Сводка по сегментам
-  const segSummary = useMemo(()=>{
-    const map = {};
-    rows.forEach(r => {
-      if (!map[r.segment]) map[r.segment] = {segment:r.segment, segColor:r.segColor, count:0, totalRev:0};
-      map[r.segment].count++;
-      map[r.segment].totalRev += r.monetary||0;
-    });
-    return Object.values(map).sort((a,b)=>b.count-a.count);
-  }, [rows]);
+  const filt=useMemo(()=>{
+    let d=rows;
+    if(selSeg!=='all') d=d.filter(r=>r.seg===selSeg);
+    if(search) d=d.filter(r=>(r.clientPhone||'').includes(search));
+    return d;
+  },[rows,selSeg,search]);
 
-  if (loading) return <Spinner/>;
-  if (err) return <div style={{color:'var(--red)',padding:20}}>Ошибка: {err}</div>;
+  const {sorted,thP}=useSortable(filt,'monetary');
 
-  const SEG_COLORS = {
-    'VIP':'#fbbf24','Лояльный':'#4ade80','Новый':'#c084fc',
-    'Спящий':'#60a5fa','Потерянный':'#f87171','Только подарки':'#f87171','Редкий':'#a0936a'
-  };
+  if(loading) return <Spinner text="Строим RFM-сегменты..."/>;
+  if(err) return <div className="err">Ошибка:<br/><code>{err}</code></div>;
 
   return <div className="content">
-    <div className="info-box">
-      <strong>RFM-анализ</strong> — сегментация на основе: <strong>R</strong>ecency (давность последней покупки), 
-      <strong> F</strong>requency (число покупок), <strong>M</strong>onetary (сумма). 
-      Показаны клиенты с картой лояльности. Подарки (цена ≤1₽) считаются отдельно.
+    <div className="info">
+      <strong>RFM:</strong> <strong>R</strong> — дней с последней покупки · <strong>F</strong> — число покупок · <strong>M</strong> — сумма. Подарки (≤1₽) отдельно.
     </div>
-
-    {/* Сводка по сегментам */}
-    <div className="section-title">Распределение по сегментам</div>
     <div className="cards">
-      {segSummary.map((s,i)=><div key={i} className="card">
-        <div className="card-label" style={{color:SEG_COLORS[s.segment]||'var(--gold-dim)'}}>{s.segment}</div>
-        <div className="card-value">{fmt(s.count)}</div>
-        <div className="card-sub">Выручка: {fmtR(s.totalRev)}</div>
+      {segSum.map((s,i)=><div key={i} className="card" style={{cursor:'pointer',borderColor:selSeg===s.seg?'var(--gold)':'var(--border)'}} onClick={()=>setSelSeg(selSeg===s.seg?'all':s.seg)}>
+        <div className="card-label" style={{color:SEG_C[s.seg]||'var(--gold-dim)'}}>{s.seg}</div>
+        <div className="card-value">{fmt(s.cnt)}</div>
+        <div className="card-sub">{fmtR(s.rev)}</div>
       </div>)}
     </div>
-
-    {/* Таблица */}
     <div className="tbl-wrap">
       <div className="tbl-head">
-        <h3>Клиенты (топ 2000 по выручке)</h3>
-        <input
-          style={{background:'var(--bg)',border:'1px solid var(--border)',color:'var(--text)',fontFamily:'inherit',fontSize:12,padding:'4px 10px',borderRadius:4,outline:'none',width:200}}
-          placeholder="Поиск по телефону..."
-          value={search} onChange={e=>setSearch(e.target.value)}
-        />
+        <h3>{selSeg==='all'?'Все':selSeg} — {fmt(filt.length)} чел.</h3>
+        <input style={{background:'var(--bg)',border:'1px solid var(--border)',color:'var(--text)',fontFamily:'inherit',fontSize:12,padding:'4px 10px',borderRadius:4,outline:'none',width:180}}
+          placeholder="Поиск по телефону..." value={search} onChange={e=>setSearch(e.target.value)}/>
+      </div>
+      <div style={{padding:'7px 12px',borderBottom:'1px solid var(--border)',display:'flex',flexWrap:'wrap',gap:3}}>
+        <button className={`seg-btn${selSeg==='all'?' on':''}`} onClick={()=>setSelSeg('all')}>Все ({fmt(rows.length)})</button>
+        {segSum.map(s=><button key={s.seg} className={`seg-btn${selSeg===s.seg?' on':''}`} onClick={()=>setSelSeg(selSeg===s.seg?'all':s.seg)} style={{color:selSeg===s.seg?'':SEG_C[s.seg]}}>{s.seg} ({fmt(s.cnt)})</button>)}
       </div>
       <table>
         <thead><tr>
           <th style={{textAlign:'left'}}>Телефон</th>
           <th style={{textAlign:'left'}}>Сегмент</th>
-          <th {...thProps('frequency')}>Покупок</th>
-          <th {...thProps('monetary')}>Выручка</th>
-          <th {...thProps('avg_item')}>Ср. сумма</th>
-          <th {...thProps('recency_days')}>Дней без покупки</th>
-          <th {...thProps('gift_count')}>Подарков</th>
-          <th>Пол / Возраст</th>
-          <th {...thProps('shops_count')}>Магазинов</th>
+          <th {...thP('freq')}>Покупок</th>
+          <th {...thP('monetary')}>Выручка</th>
+          <th {...thP('recency')}>Дней без покупки</th>
+          <th {...thP('gifts')}>Подарков</th>
         </tr></thead>
-        <tbody>
-          {sorted.slice(0,200).map((r,i)=>{
-            const sc = SEG_COLORS[r.segment]||'var(--gold-dim)';
-            return <tr key={i}>
-              <td style={{fontFamily:'monospace',fontSize:12}}>{r.clientPhone}</td>
-              <td><span style={{color:sc,fontSize:12}}>{r.segment}</span></td>
-              <td>{fmt(r.frequency)}</td>
-              <td>{fmtR(r.monetary)}</td>
-              <td>{r.avg_item?fmtR(r.avg_item):'—'}</td>
-              <td style={{color:r.recency_days>365?'var(--red)':r.recency_days>120?'var(--amber)':'var(--text)'}}>{r.recency_days??'—'}</td>
-              <td style={{color:r.gift_count>3?'var(--red)':'var(--text)'}}>{r.gift_count||0}</td>
-              <td style={{fontSize:12,color:'var(--gold-dim)'}}>{r.gender||'—'} {r.age>0?r.age+'л':''}</td>
-              <td>{r.shops_count}</td>
-            </tr>;
-          })}
-        </tbody>
+        <tbody>{sorted.slice(0,300).map((r,i)=><tr key={i}>
+          <td style={{fontFamily:'monospace',fontSize:11}}>{r.clientPhone}</td>
+          <td><span style={{color:SEG_C[r.seg]||'var(--gold-dim)',fontSize:12}}>{r.seg}</span></td>
+          <td>{fmt(r.freq)}</td>
+          <td>{fmtR(r.monetary)}</td>
+          <td style={{color:Number(r.recency)>365?'var(--red)':Number(r.recency)>120?'var(--amber)':'var(--text)'}}>{r.recency??'—'}</td>
+          <td style={{color:Number(r.gifts)>5?'var(--red)':'var(--text)'}}>{r.gifts||0}</td>
+        </tr>)}</tbody>
       </table>
-      {sorted.length > 200 && <div style={{padding:'10px 14px',fontSize:12,color:'var(--gold-dim)',borderTop:'1px solid var(--border)'}}>
-        Показано 200 из {fmt(sorted.length)}. Используйте поиск для фильтрации.
-      </div>}
+      {sorted.length>300&&<div style={{padding:'9px 14px',fontSize:12,color:'var(--gold-dim)',borderTop:'1px solid var(--border)'}}>Показано 300 из {fmt(sorted.length)}. Используйте поиск.</div>}
     </div>
   </div>;
 }
 
-/* ════════════════════ TAB: SMS ════════════════════ */
+/* ══════ TAB 3: SMS ══════ */
 function TabSMS() {
-  const [rows, setRows] = useState([]);
-  const [smsHistory, setSmsHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [err, setErr] = useState('');
-  const [selSeg, setSelSeg] = useState('all');
-  const [copied, setCopied] = useState(false);
+  const [st,setSt]=useState({loading:true,err:'',rows:[],smsTotal:0});
+  const [selSeg,setSelSeg]=useState('all');
+  const [copied,setCopied]=useState(false);
 
   useEffect(()=>{
     (async()=>{
       try {
-        setLoading(true);
-        const [clients, smsStat] = await Promise.all([
-          // Полный профиль каждого клиента для SMS-оптимизации
-          queryDB(`
-            SELECT
-              s.clientPhone,
-              COUNT(DISTINCT CASE WHEN s.price>1 THEN s.docID END) as real_visits,
-              COUNT(DISTINCT CASE WHEN s.price<=1 THEN s.docID END) as gift_visits,
-              ROUND(SUM(CASE WHEN s.price>1 THEN s.sum ELSE 0 END)) as total_revenue,
-              DATEDIFF(CURDATE(), MAX(CASE WHEN s.price>1 THEN s.docDate END)) as days_since_buy,
-              DATEDIFF(CURDATE(), MAX(s.docDate)) as days_since_any,
-              MAX(CASE WHEN s.price>1 THEN s.docDate END) as last_purchase,
-              MIN(s.docDate) as first_visit
-            FROM sales s
-            JOIN loyaltyCards lc ON lc.clientPhone = s.clientPhone
-            WHERE ${EXCL} AND s.clientPhone IS NOT NULL AND s.clientPhone != ''
-            GROUP BY s.clientPhone
-          `),
-          // Кол-во SMS по клиентам
-          queryDB(`
-            SELECT phone,
-                   COUNT(*) as sms_count,
-                   MAX(date) as last_sms
-            FROM SendingSMS
-            WHERE phone IS NOT NULL AND phone != ''
-            GROUP BY phone
-          `)
-        ]);
+        setSt(s=>({...s,loading:true,err:''}));
 
-        // Создаём map SMS
-        const smsMap = {};
-        smsStat.forEach(r => { smsMap[r.phone] = r; });
+        const sales = await q(`
+          SELECT clientPhone,
+            COUNT(DISTINCT CASE WHEN price>1 THEN docID END) as rv,
+            COUNT(DISTINCT CASE WHEN price<=1 AND price>0 THEN docID END) as gv,
+            ROUND(SUM(CASE WHEN price>1 THEN sum ELSE 0 END)) as rev,
+            DATEDIFF(CURDATE(), MAX(CASE WHEN price>1 THEN docDate END)) as dsb
+          FROM sales
+          WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone != ''
+          GROUP BY clientPhone
+          LIMIT 50000
+        `);
 
-        // Обогащаем клиентов данными по SMS + назначаем сегмент
-        const enriched = clients.map(r => {
-          const sms = smsMap[r.clientPhone] || {sms_count:0};
-          const sms_count = sms.sms_count || 0;
-          const sms_cost = sms_count * 8; // 8 руб/смс
-          const gift_cost = (r.gift_visits||0) * 120; // 120 руб/подарок
-          const total_cost = sms_cost + gift_cost;
-          const roi = total_cost > 0 ? Math.round((r.total_revenue - total_cost) / total_cost * 100) : null;
+        const cards = await q(`SELECT clientPhone FROM loyaltyCards`);
+        const cardSet = new Set(cards.map(r=>r.clientPhone));
+        const cardSales = sales.filter(r=>cardSet.has(r.clientPhone));
 
-          const rv = r.real_visits || 0;
-          const gv = r.gift_visits || 0;
-          const dsb = r.days_since_buy;
+        const sms = await q(`SELECT phone, COUNT(*) as cnt FROM SendingSMS WHERE phone IS NOT NULL AND phone!='' GROUP BY phone`);
+        const smsMap={};
+        sms.forEach(r=>{smsMap[r.phone]=Number(r.cnt)||0;});
 
-          let segment, recommendation;
+        const rows = cardSales.map(r=>{
+          const rv=Number(r.rv)||0, gv=Number(r.gv)||0, rev=Number(r.rev)||0;
+          const dsb=Number(r.dsb)||9999;
+          const smsCnt=smsMap[r.clientPhone]||0;
+          const smsCost=smsCnt*8, giftCost=gv*120;
+          const totalCost=smsCost+giftCost;
+          const roi=totalCost>0?Math.round((rev-totalCost)/totalCost*100):null;
 
-          if (rv >= 5 && dsb <= 120) {
-            segment = 'vip'; recommendation = '✅ Слать всегда';
-          } else if (rv >= 2 && dsb <= 180) {
-            segment = 'loyal'; recommendation = '✅ Слать';
-          } else if (rv >= 1 && dsb > 180 && dsb <= 400) {
-            segment = 'sleeping'; recommendation = '⚠️ Попробовать вернуть';
-          } else if (rv >= 1 && dsb > 400) {
-            segment = 'lost'; recommendation = '⛔ Исключить или пауза';
-          } else if (rv === 0 && gv >= 1 && sms_count >= 5) {
-            segment = 'freeloader'; recommendation = '⛔ Исключить';
-          } else if (rv === 0 && gv >= 1 && sms_count < 5) {
-            segment = 'gift_prospect'; recommendation = '⚠️ Дать ещё шанс';
-          } else if (rv === 1 && dsb <= 180) {
-            segment = 'new'; recommendation = '✅ Слать';
-          } else {
-            segment = 'rare'; recommendation = '⚠️ Редко';
-          }
+          let seg,rec;
+          if(rv>=5&&dsb<=90)              {seg='vip';       rec='✅ Слать';}
+          else if(rv>=2&&dsb<=180)        {seg='loyal';      rec='✅ Слать';}
+          else if(rv===1&&dsb<=180)       {seg='new';        rec='✅ Слать';}
+          else if(rv>=1&&dsb<=365)        {seg='sleeping';   rec='⚠️ Попробовать';}
+          else if(rv>=1&&dsb>365)         {seg='lost';       rec='⛔ Пауза';}
+          else if(rv===0&&gv>0&&smsCnt>=5){seg='freeloader'; rec='⛔ Исключить';}
+          else if(rv===0&&gv>0)           {seg='gift_new';   rec='⚠️ Дать шанс';}
+          else                            {seg='unknown';    rec='⚠️ Наблюдать';}
 
-          return {...r, sms_count, sms_cost, gift_cost, total_cost, roi, segment, recommendation};
+          return {...r,rv,gv,rev,dsb,smsCnt,smsCost,giftCost,totalCost,roi,seg,rec};
         });
 
-        setRows(enriched);
-        setSmsHistory(smsStat);
-      } catch(e) { setErr(e.message); }
-      setLoading(false);
+        setSt({loading:false,err:'',rows,smsTotal:sms.length});
+      } catch(e){
+        setSt(s=>({...s,loading:false,err:e.message}));
+      }
     })();
-  }, []);
+  },[]);
 
-  const SEG_LABELS = {
-    'all':'Все клиенты',
-    'vip':'VIP',
-    'loyal':'Лояльные',
-    'new':'Новые',
-    'sleeping':'Спящие',
-    'gift_prospect':'Потенциальные (брали подарки)',
-    'freeloader':'Халявщики',
-    'lost':'Потерянные',
-    'rare':'Редкие'
-  };
-  const SEG_COLORS_SMS = {
-    'vip':'#fbbf24','loyal':'#4ade80','new':'#c084fc',
-    'sleeping':'#60a5fa','gift_prospect':'#fb923c',
-    'freeloader':'#f87171','lost':'#f87171','rare':'#a0936a'
-  };
+  const SL={'all':'Все','vip':'VIP','loyal':'Лояльные','new':'Новые','sleeping':'Спящие','lost':'Потерянные','gift_new':'Потенциальные','freeloader':'Халявщики','unknown':'Неизвестные'};
+  const SC={vip:'#fbbf24',loyal:'#4ade80',new:'#c084fc',sleeping:'#60a5fa',lost:'#f87171',gift_new:'#fb923c',freeloader:'#f87171',unknown:'#a0936a'};
+  const SEND=['vip','loyal','new','sleeping','gift_new'];
 
-  const filtered = useMemo(()=>{
-    if (selSeg==='all') return rows;
-    return rows.filter(r=>r.segment===selSeg);
-  }, [rows, selSeg]);
+  const {rows}=st;
+  const segS=useMemo(()=>{const m={};rows.forEach(r=>{if(!m[r.seg])m[r.seg]={cnt:0,rev:0,sms:0};m[r.seg].cnt++;m[r.seg].rev+=r.rev||0;m[r.seg].sms+=r.smsCost||0;});return m;},[rows]);
+  const filt=useMemo(()=>selSeg==='all'?rows:rows.filter(r=>r.seg===selSeg),[rows,selSeg]);
+  const {sorted,thP}=useSortable(filt,'rev');
 
-  const {sorted, thProps} = useSortable(filtered, 'total_revenue');
+  const phones=useMemo(()=>{
+    const src=selSeg==='all'?rows.filter(r=>SEND.includes(r.seg)):filt;
+    return [...new Set(src.map(r=>r.clientPhone).filter(Boolean))];
+  },[rows,filt,selSeg]);
 
-  // Статистика по сегментам для SMS
-  const segStats = useMemo(()=>{
-    const map = {};
-    rows.forEach(r => {
-      if (!map[r.segment]) map[r.segment] = {count:0, revenue:0, sms_cost:0, gift_cost:0};
-      map[r.segment].count++;
-      map[r.segment].revenue += r.total_revenue||0;
-      map[r.segment].sms_cost += r.sms_cost||0;
-      map[r.segment].gift_cost += r.gift_cost||0;
-    });
-    return map;
-  }, [rows]);
+  const sendCnt=rows.filter(r=>SEND.includes(r.seg)).length;
+  const exclCnt=rows.filter(r=>['freeloader','lost'].includes(r.seg)).length;
 
-  // Телефоны для выгрузки
-  const phonesForExport = useMemo(()=>{
-    const sendSegments = ['vip','loyal','new','sleeping','gift_prospect'];
-    const list = (selSeg==='all'
-      ? rows.filter(r=>sendSegments.includes(r.segment))
-      : filtered
-    ).map(r=>r.clientPhone).filter(Boolean);
-    return [...new Set(list)];
-  }, [rows, filtered, selSeg]);
-
-  const copyPhones = () => {
-    navigator.clipboard.writeText(phonesForExport.join('\n'));
-    setCopied(true);
-    setTimeout(()=>setCopied(false), 2000);
+  const copy=()=>{navigator.clipboard.writeText(phones.join('\n'));setCopied(true);setTimeout(()=>setCopied(false),2000);};
+  const csv=()=>{
+    const src=selSeg==='all'?rows.filter(r=>SEND.includes(r.seg)):filt;
+    const b=src.map(r=>`${r.clientPhone},${SL[r.seg]||r.seg},${r.rv},${r.rev},${r.gv},${r.smsCnt},${r.roi??''},${r.rec}`).join('\n');
+    const blob=new Blob(['\uFEFFТелефон,Сегмент,Покупок,Выручка,Подарков,SMS,ROI%,Рекомендация\n'+b],{type:'text/csv;charset=utf-8;'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='silver_sms.csv';a.click();
   };
 
-  const downloadCSV = () => {
-    const rows2 = (selSeg==='all'
-      ? rows.filter(r=>['vip','loyal','new','sleeping','gift_prospect'].includes(r.segment))
-      : filtered
-    );
-    const header = 'Телефон,Сегмент,Покупок,Выручка,Подарков,SMS получено,Рекомендация';
-    const body = rows2.map(r=>`${r.clientPhone},${SEG_LABELS[r.segment]||r.segment},${r.real_visits||0},${r.total_revenue||0},${r.gift_visits||0},${r.sms_count||0},${r.recommendation}`).join('\n');
-    const blob = new Blob(['\uFEFF'+header+'\n'+body], {type:'text/csv;charset=utf-8;'});
-    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download='silver_sms_segments.csv'; a.click();
-  };
-
-  if (loading) return <Spinner/>;
-  if (err) return <div style={{color:'var(--red)',padding:20}}>Ошибка: {err}</div>;
-
-  const totalSendCount = rows.filter(r=>['vip','loyal','new','sleeping','gift_prospect'].includes(r.segment)).length;
-  const totalExcludeCount = rows.filter(r=>['freeloader','lost'].includes(r.segment)).length;
-  const savedSMS = totalExcludeCount * 8;
+  if(st.loading) return <Spinner text="Анализируем SMS и покупки..."/>;
+  if(st.err) return <div className="err">Ошибка:<br/><code>{st.err}</code></div>;
 
   return <div className="content">
-    {/* Экономика */}
     <div className="cards">
       <div className="card card-accent">
-        <div className="card-label">Рекомендуется к рассылке</div>
-        <div className="card-value">{fmt(totalSendCount)}</div>
-        <div className="card-sub">клиентов получат SMS</div>
+        <div className="card-label">К рассылке</div>
+        <div className="card-value" style={{color:'var(--green)'}}>{fmt(sendCnt)}</div>
+        <div className="card-sub">VIP + Лояльные + Новые + Спящие + Потенц.</div>
       </div>
       <div className="card">
-        <div className="card-label">Рекомендуется исключить</div>
-        <div className="card-value" style={{color:'var(--red)'}}>{fmt(totalExcludeCount)}</div>
+        <div className="card-label">Исключить</div>
+        <div className="card-value" style={{color:'var(--red)'}}>{fmt(exclCnt)}</div>
         <div className="card-sub">халявщики + потерянные</div>
       </div>
       <div className="card">
         <div className="card-label">Экономия за рассылку</div>
-        <div className="card-value" style={{color:'var(--green)'}}>{fmtR(savedSMS)}</div>
-        <div className="card-sub">при исключении {fmt(totalExcludeCount)} чел × 8₽</div>
+        <div className="card-value" style={{color:'var(--green)'}}>{fmtR(exclCnt*8)}</div>
+        <div className="card-sub">{fmt(exclCnt)} чел × 8₽</div>
       </div>
       <div className="card">
-        <div className="card-label">SMS истории загружено</div>
-        <div className="card-value">{fmt(smsHistory.length)}</div>
+        <div className="card-label">SMS в истории</div>
+        <div className="card-value">{fmt(st.smsTotal)}</div>
         <div className="card-sub">уникальных телефонов</div>
       </div>
     </div>
 
-    {/* Сегменты легенда */}
-    <div className="section-title">Сегменты для SMS-рассылки</div>
-    <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(280px,1fr))',gap:12,marginBottom:20}}>
-      {Object.entries(SEG_LABELS).filter(([k])=>k!=='all').map(([k,label])=>{
-        const s = segStats[k]||{count:0,revenue:0,sms_cost:0,gift_cost:0};
-        const sendSegments = ['vip','loyal','new','sleeping','gift_prospect'];
-        const action = sendSegments.includes(k) ? '✅ Слать' : '⛔ Исключить/Пауза';
-        const actionColor = sendSegments.includes(k) ? 'var(--green)' : 'var(--red)';
+    <div className="sec">Сегменты — кликните для фильтра</div>
+    <div className="cards">
+      {Object.entries(SL).filter(([k])=>k!=='all').map(([k,l])=>{
+        const s=segS[k]||{cnt:0,rev:0,sms:0};
+        if(!s.cnt) return null;
+        const isSend=SEND.includes(k);
         return <div key={k} className="card" style={{cursor:'pointer',borderColor:selSeg===k?'var(--gold)':'var(--border)'}} onClick={()=>setSelSeg(selSeg===k?'all':k)}>
-          <div className="card-label" style={{color:SEG_COLORS_SMS[k]||'var(--gold-dim)'}}>{label}</div>
+          <div className="card-label" style={{color:SC[k]||'var(--gold-dim)'}}>{l}</div>
           <div style={{display:'flex',alignItems:'baseline',gap:8}}>
-            <div className="card-value">{fmt(s.count)}</div>
-            <div style={{fontSize:12,color:actionColor}}>{action}</div>
+            <div className="card-value">{fmt(s.cnt)}</div>
+            <span style={{fontSize:12,color:isSend?'var(--green)':'var(--red)'}}>{isSend?'✅':'⛔'}</span>
           </div>
-          <div className="card-sub">Выручка: {fmtR(s.revenue)} · SMS-затраты: {fmtR(s.sms_cost)}</div>
+          <div className="card-sub">{fmtR(s.rev)} · SMS: {fmtR(s.sms)}</div>
         </div>;
       })}
     </div>
 
     {/* Экспорт */}
-    <div className="sms-export">
-      <div style={{marginBottom:12,display:'flex',alignItems:'center',gap:12,flexWrap:'wrap'}}>
-        <span style={{fontSize:13,color:'var(--gold)'}}>Экспорт телефонов для рассылки</span>
-        <span style={{fontSize:12,color:'var(--gold-dim)'}}>
-          {selSeg==='all'
-            ? `Рекомендуемые сегменты (VIP + Лояльные + Новые + Спящие + Потенциальные): ${fmt(phonesForExport.length)} чел.`
-            : `${SEG_LABELS[selSeg]}: ${fmt(filtered.length)} чел.`
-          }
-        </span>
-        <button className="export-btn" onClick={downloadCSV}>⬇ Скачать CSV</button>
-        <button className="export-btn" style={{background:'transparent',border:'1px solid var(--gold)',color:'var(--gold)'}} onClick={copyPhones}>
-          {copied ? '✓ Скопировано!' : '📋 Копировать телефоны'}
-        </button>
+    <div style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:10,padding:16,marginBottom:18}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,flexWrap:'wrap',marginBottom:8}}>
+        <span style={{fontSize:13,color:'var(--gold)'}}>Список для рассылки</span>
+        <span style={{fontSize:12,color:'var(--gold-dim)'}}>{selSeg==='all'?`Рекомендуемые: ${fmt(phones.length)} чел.`:`${SL[selSeg]}: ${fmt(filt.length)} чел.`}</span>
+        <div style={{marginLeft:'auto',display:'flex',gap:8}}>
+          <button className="export-btn" onClick={csv}>⬇ CSV</button>
+          <button className="export-btn outline" onClick={copy}>{copied?'✓ Скопировано!':'📋 Копировать'}</button>
+        </div>
       </div>
-      <div style={{marginBottom:10,display:'flex',flexWrap:'wrap',gap:8}}>
-        {Object.entries(SEG_LABELS).map(([k,l])=><button key={k} className={`seg-btn${selSeg===k?' on':''}`} onClick={()=>setSelSeg(k)}>{l} ({k==='all'?fmt(rows.length):fmt((segStats[k]||{}).count||0)})</button>)}
+      <div style={{display:'flex',flexWrap:'wrap',gap:3,marginBottom:8}}>
+        <button className={`seg-btn${selSeg==='all'?' on':''}`} onClick={()=>setSelSeg('all')}>Рекомендуемые ({fmt(sendCnt)})</button>
+        {Object.entries(SL).filter(([k])=>k!=='all').map(([k,l])=>{const c=(segS[k]||{}).cnt||0;if(!c)return null;return <button key={k} className={`seg-btn${selSeg===k?' on':''}`} onClick={()=>setSelSeg(selSeg===k?'all':k)}>{l} ({fmt(c)})</button>;})}
       </div>
       <div className="phone-list">
-        {phonesForExport.slice(0,100).join('  ·  ')}{phonesForExport.length>100?`  ...и ещё ${phonesForExport.length-100}`:''}
+        {phones.length===0?'Нет номеров':phones.slice(0,80).join('  ·  ')+(phones.length>80?`  ...ещё ${phones.length-80}`:'')}
       </div>
     </div>
 
-    {/* Таблица деталей */}
-    <div className="section-title" style={{marginTop:24}}>Детальная таблица клиентов</div>
     <div className="tbl-wrap">
-      <div className="tbl-head">
-        <h3>{SEG_LABELS[selSeg]||'Все'} — {fmt(filtered.length)} клиентов</h3>
-        <span style={{fontSize:11,color:'var(--gold-dim)'}}>сортировка по столбцам ↕</span>
-      </div>
+      <div className="tbl-head"><h3>{SL[selSeg]||'Все'} — {fmt(filt.length)} клиентов</h3></div>
       <table>
         <thead><tr>
           <th style={{textAlign:'left'}}>Телефон</th>
           <th style={{textAlign:'left'}}>Сегмент</th>
-          <th {...thProps('real_visits')}>Покупок</th>
-          <th {...thProps('total_revenue')}>Выручка</th>
-          <th {...thProps('gift_visits')}>Подарков</th>
-          <th {...thProps('sms_count')}>SMS</th>
-          <th {...thProps('roi')}>ROI %</th>
-          <th {...thProps('days_since_buy')}>Дней без покупки</th>
+          <th {...thP('rv')}>Покупок</th>
+          <th {...thP('rev')}>Выручка</th>
+          <th {...thP('gv')}>Подарков</th>
+          <th {...thP('smsCnt')}>SMS</th>
+          <th {...thP('roi')}>ROI %</th>
+          <th {...thP('dsb')}>Дней без покупки</th>
           <th>Рекомендация</th>
         </tr></thead>
-        <tbody>
-          {sorted.slice(0,300).map((r,i)=>{
-            const sc = SEG_COLORS_SMS[r.segment]||'var(--gold-dim)';
-            return <tr key={i}>
-              <td style={{fontFamily:'monospace',fontSize:11}}>{r.clientPhone}</td>
-              <td><span style={{color:sc,fontSize:12}}>{SEG_LABELS[r.segment]||r.segment}</span></td>
-              <td>{r.real_visits||0}</td>
-              <td>{fmtR(r.total_revenue)}</td>
-              <td style={{color:r.gift_visits>5?'var(--red)':'var(--text)'}}>{r.gift_visits||0}</td>
-              <td>{r.sms_count||0}</td>
-              <td>{r.roi!=null?<PctBadge value={r.roi}/>:'—'}</td>
-              <td style={{color:r.days_since_buy>365?'var(--red)':r.days_since_buy>120?'var(--amber)':'var(--text)'}}>
-                {r.days_since_buy??'—'}
-              </td>
-              <td style={{fontSize:11}}>{r.recommendation}</td>
-            </tr>;
-          })}
-        </tbody>
+        <tbody>{sorted.slice(0,300).map((r,i)=>{
+          const rc=Number(r.roi);
+          return <tr key={i}>
+            <td style={{fontFamily:'monospace',fontSize:11}}>{r.clientPhone}</td>
+            <td><span style={{color:SC[r.seg]||'var(--gold-dim)',fontSize:12}}>{SL[r.seg]||r.seg}</span></td>
+            <td>{r.rv}</td>
+            <td>{fmtR(r.rev)}</td>
+            <td style={{color:r.gv>5?'var(--red)':'var(--text)'}}>{r.gv}</td>
+            <td>{r.smsCnt}</td>
+            <td style={{color:r.roi==null?'var(--gold-dim)':rc>=0?'var(--green)':'var(--red)',fontWeight:700,fontSize:12}}>{r.roi!=null?r.roi+'%':'—'}</td>
+            <td style={{color:Number(r.dsb)>365?'var(--red)':Number(r.dsb)>180?'var(--amber)':'var(--text)'}}>{r.dsb===9999?'—':r.dsb}</td>
+            <td style={{fontSize:11}}>{r.rec}</td>
+          </tr>;
+        })}</tbody>
       </table>
-      {sorted.length > 300 && <div style={{padding:'10px 14px',fontSize:12,color:'var(--gold-dim)',borderTop:'1px solid var(--border)'}}>
-        Показано 300 из {fmt(sorted.length)}. Скачайте CSV для полного списка.
-      </div>}
+      {sorted.length>300&&<div style={{padding:'9px 14px',fontSize:12,color:'var(--gold-dim)',borderTop:'1px solid var(--border)'}}>Показано 300 из {fmt(sorted.length)}. Скачайте CSV.</div>}
     </div>
   </div>;
 }
 
-/* ════════════════════ DASHBOARD ════════════════════ */
+/* ══════ DASHBOARD ══════ */
 function Dashboard() {
-  const [tab, setTab] = useState('overview');
-
-  const tabs = [
-    {id:'overview', label:'Обзор & Статистика'},
-    {id:'rfm', label:'RFM-сегменты'},
-    {id:'sms', label:'SMS-оптимизация'},
-  ];
-
+  const [tab,setTab]=useState('overview');
+  const tabs=[{id:'overview',label:'Обзор & Статистика'},{id:'rfm',label:'RFM-сегменты'},{id:'sms',label:'SMS-оптимизация'}];
   return <>
     <div className="hdr">
-      <div className="hdr-top">
-        <div className="hdr-brand">Сильвер ◆ Аналитика продаж</div>
-      </div>
+      <div className="hdr-top"><div className="hdr-brand">Сильвер ◆ Аналитика продаж</div></div>
       <div className="hdr-title">Аналитика покупателей</div>
       <div className="hdr-sub">Поведение клиентов · RFM-сегментация · Оптимизация SMS-рассылок</div>
-      <div className="hdr-tabs">
-        {tabs.map(t=><button key={t.id} className={`tbtn${tab===t.id?' on':''}`} onClick={()=>setTab(t.id)}>{t.label}</button>)}
-      </div>
+      <div className="hdr-tabs">{tabs.map(t=><button key={t.id} className={`tbtn${tab===t.id?' on':''}`} onClick={()=>setTab(t.id)}>{t.label}</button>)}</div>
     </div>
-
-    {tab==='overview' && <TabOverview/>}
-    {tab==='rfm'      && <TabRFM/>}
-    {tab==='sms'      && <TabSMS/>}
-
+    {tab==='overview'&&<TabOverview/>}
+    {tab==='rfm'&&<TabRFM/>}
+    {tab==='sms'&&<TabSMS/>}
     <div className="footer">
       <span>СИЛЬВЕР · ПОКУПАТЕЛИ · {now.toLocaleString('ru-RU')}</span>
       <button className="logout-btn" onClick={()=>{sessionStorage.removeItem('silver_auth');window.location.reload();}}>Выйти</button>
@@ -985,13 +693,11 @@ function Dashboard() {
   </>;
 }
 
-/* ════════════════════ APP ════════════════════ */
 function App() {
-  const [auth, setAuth] = useState(!!sessionStorage.getItem('silver_auth'));
-  if (!auth) return <LoginScreen onLogin={()=>setAuth(true)}/>;
+  const [auth,setAuth]=useState(!!sessionStorage.getItem('silver_auth'));
+  if(!auth) return <LoginScreen onLogin={()=>setAuth(true)}/>;
   return <Dashboard/>;
 }
-
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 </script>
 </body>
