@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Сильвер · Тренды</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<style>
+  :root {
+    --bg:#0f0e0b; --bg2:#1a1810;
+    --gold:#d4af37; --gold-dim:#a0936a; --gold-faint:rgba(212,175,55,0.08);
+    --text:#e8dfc8; --text-dim:#4a4535; --border:rgba(212,175,55,0.13);
+    --green:#4ade80; --red:#f87171;
+    --green-bg:rgba(74,222,128,0.12); --red-bg:rgba(248,113,113,0.12);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { background:var(--bg); color:var(--text); font-family:'Georgia','Times New Roman',serif; height:100vh; overflow:hidden; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;} }
+  @keyframes kpiIn { from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;} }
+
+  .header { background:linear-gradient(135deg,#1c1a0e 0%,#0f0e0b 70%); border-bottom:1px solid var(--border); padding:11px 20px 0; flex-shrink:0; }
+  .header-row1 { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+  .logo { font-size:14px; letter-spacing:3px; color:var(--gold); }
+  .year-btns { display:flex; gap:4px; }
+  .ybtn { background:none; border:none; color:var(--gold-dim); font-family:inherit; font-size:13px; cursor:pointer; padding:3px 9px; border-bottom:2px solid transparent; transition:all .18s; }
+  .ybtn.on { color:var(--gold); border-bottom-color:var(--gold); }
+  .header-row2 { display:flex; align-items:baseline; gap:12px; margin-bottom:6px; }
+  .header-title { font-size:16px; font-weight:400; color:var(--text); }
+  .header-sub { font-size:11px; color:var(--gold-dim); letter-spacing:.3px; }
+  .shop-bar { display:flex; gap:4px; flex-wrap:wrap; padding-bottom:9px; }
+  .sbtn { background:none; border:1px solid var(--border); color:#5a5040; font-family:inherit; font-size:10px; cursor:pointer; padding:3px 8px; border-radius:3px; transition:all .15s; white-space:nowrap; }
+  .sbtn:hover { color:var(--gold-dim); border-color:rgba(212,175,55,0.3); }
+  .sbtn.on { background:rgba(212,175,55,0.1); border-color:rgba(212,175,55,0.45); color:var(--gold); }
+  .sbtn-all { border-style:dashed; }
+  .month-bar { display:flex; border-top:1px solid var(--border); overflow-x:auto; }
+  .mbtn { background:none; border:none; border-bottom:2px solid transparent; color:#5a5040; font-family:inherit; font-size:11px; cursor:pointer; padding:5px 9px; transition:all .15s; white-space:nowrap; }
+  .mbtn:hover { color:var(--gold-dim); }
+  .mbtn.on { color:var(--gold); border-bottom-color:var(--gold); }
+
+  .layout { display:flex; flex:1; overflow:hidden; min-height:0; }
+
+  .left-panel { width:185px; min-width:185px; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; }
+  .lp-head { padding:7px 10px 5px; font-size:9px; letter-spacing:.1em; color:var(--gold-dim); text-transform:uppercase; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
+  .lp-head button { background:none; border:none; color:#5a5040; cursor:pointer; font-size:10px; font-family:inherit; }
+  .lp-head button:hover { color:var(--gold); }
+  .lp-search { padding:5px 8px; border-bottom:1px solid var(--border); flex-shrink:0; }
+  .lp-search input { width:100%; background:rgba(212,175,55,0.04); border:1px solid var(--border); color:var(--text); font-family:inherit; font-size:11px; padding:3px 7px; border-radius:3px; outline:none; }
+  .lp-search input:focus { border-color:rgba(212,175,55,0.35); }
+  .lp-list { overflow-y:auto; flex:1; }
+  .coll-item { display:flex; align-items:center; gap:5px; padding:4px 8px; transition:background .12s; }
+  .coll-item:hover { background:var(--gold-faint); }
+  .coll-item input[type=checkbox] { accent-color:var(--gold); cursor:pointer; flex-shrink:0; width:12px; height:12px; }
+  .coll-item label { font-size:11px; color:var(--text); cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
+  .coll-item.excluded label { color:#3a3520; text-decoration:line-through; }
+  .block-btn { background:none; border:none; cursor:pointer; font-size:11px; padding:0; flex-shrink:0; line-height:1; }
+
+  .center { flex:1; overflow-y:auto; padding:10px 12px; display:flex; flex-direction:column; gap:10px; min-width:0; }
+
+  .kpi-row { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; animation:kpiIn .3s ease; }
+  .kpi-card { background:var(--bg2); border:1px solid var(--border); border-radius:5px; padding:10px 14px 9px; position:relative; overflow:hidden; }
+  .kpi-card::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,var(--ca,var(--gold)) 0%,transparent 70%); }
+  .kpi-label { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-dim); margin-bottom:5px; }
+  .kpi-main { font-size:20px; font-weight:400; color:var(--text); line-height:1; margin-bottom:4px; }
+  .kpi-sub { display:flex; align-items:center; gap:7px; }
+  .kpi-prev { font-size:11px; color:#5a5040; }
+  .badge { font-size:11px; font-weight:700; border-radius:4px; padding:1px 6px; }
+  .badge.pos { color:var(--green); background:var(--green-bg); }
+  .badge.neg { color:var(--red); background:var(--red-bg); }
+  .badge.neu { color:#5a5040; }
+
+  .chart-section { background:var(--bg2); border:1px solid var(--border); border-radius:5px; overflow:hidden; flex-shrink:0; animation:fadeIn .25s ease; }
+  .cs-head { display:flex; align-items:center; justify-content:space-between; padding:7px 12px 5px; border-bottom:1px solid var(--border); }
+  .cs-title { font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--gold-dim); }
+  .cs-legend { display:flex; gap:8px; }
+  .cs-li { display:flex; align-items:center; gap:3px; font-size:10px; }
+
+  /* SVG chart tooltip */
+  .chart-wrap { position:relative; }
+  .svg-tooltip {
+    position:absolute; pointer-events:none;
+    background:#18160f; border:1px solid rgba(212,175,55,0.25);
+    border-radius:5px; padding:7px 10px; font-size:11px;
+    box-shadow:0 4px 16px rgba(0,0,0,0.5); min-width:140px; z-index:10;
+    transition: opacity .1s;
+  }
+  .stt-month { font-size:10px; color:var(--gold-dim); margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
+  .stt-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:1px 0; }
+  .stt-row.cur { background:rgba(212,175,55,0.07); border-radius:3px; padding:1px 3px; margin:0 -3px; }
+  .stt-yr { display:flex; align-items:center; gap:4px; }
+  .stt-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+  .stt-val { font-weight:600; color:var(--text); }
+
+  .right-panel { width:172px; min-width:172px; background:var(--bg2); border-left:1px solid var(--border); overflow-y:auto; flex-shrink:0; }
+  .rp-section { border-bottom:1px solid var(--border); padding:7px 0 5px; }
+  .rp-label { font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:var(--gold-dim); padding:0 8px 4px; }
+  .rp-row { display:flex; align-items:center; padding:2px 7px; gap:4px; }
+  .rp-badge { font-size:10px; font-weight:700; color:#fff; border-radius:3px; padding:1px 5px; min-width:33px; text-align:center; flex-shrink:0; }
+  .rp-val { font-size:11px; color:var(--text); flex:1; text-align:right; }
+  .rp-pct { font-size:10px; font-weight:700; border-radius:3px; padding:1px 4px; flex-shrink:0; }
+  .rp-pct.pos { color:var(--green); background:var(--green-bg); }
+  .rp-pct.neg { color:var(--red); background:var(--red-bg); }
+  .y2022{background:#4169e1;} .y2023{background:#c0392b;} .y2024{background:#27ae60;} .y2025{background:#b8860b;} .y2026{background:#444;border:1px solid #666;}
+
+  .footer { background:var(--bg2); border-top:1px solid var(--border); padding:5px 20px; display:flex; align-items:center; justify-content:space-between; font-size:10px; color:var(--text-dim); flex-shrink:0; }
+  .footer button { background:none; border:1px solid rgba(212,175,55,0.18); color:#5a5040; font-family:inherit; font-size:10px; cursor:pointer; padding:2px 10px; border-radius:3px; transition:all .15s; }
+  .footer button:hover { border-color:var(--gold); color:var(--gold); }
+
+  .spinner-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; height:150px; gap:9px; }
+  .spinner { width:28px; height:28px; border-radius:50%; border:2px solid rgba(212,175,55,0.12); border-top:2px solid var(--gold); animation:spin .85s linear infinite; }
+
+  .login-bg { height:100vh; display:flex; align-items:center; justify-content:center; }
+  .login-box { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:38px; width:320px; }
+  .login-logo { text-align:center; font-size:18px; letter-spacing:4px; color:var(--gold); margin-bottom:6px; }
+  .login-sub { text-align:center; font-size:11px; color:var(--gold-dim); margin-bottom:24px; letter-spacing:1px; }
+  .login-input { width:100%; background:rgba(212,175,55,0.04); border:1px solid var(--border); color:var(--text); font-family:inherit; font-size:14px; padding:10px 13px; border-radius:4px; margin-bottom:10px; outline:none; }
+  .login-input:focus { border-color:rgba(212,175,55,0.4); }
+  .login-btn { width:100%; background:rgba(212,175,55,0.13); border:1px solid var(--gold); color:var(--gold); font-family:inherit; font-size:14px; padding:10px; border-radius:4px; cursor:pointer; letter-spacing:1px; transition:all .2s; }
+  .login-btn:hover { background:rgba(212,175,55,0.22); }
+  .login-err { color:var(--red); font-size:12px; text-align:center; margin-top:8px; }
+
+  .lp-list::-webkit-scrollbar, .center::-webkit-scrollbar, .right-panel::-webkit-scrollbar { width:3px; }
+  .lp-list::-webkit-scrollbar-thumb, .center::-webkit-scrollbar-thumb, .right-panel::-webkit-scrollbar-thumb { background:rgba(212,175,55,0.15); border-radius:2px; }
+  .no-data { text-align:center; color:#3d3828; font-size:12px; padding:40px; }
+  .err-bar { color:var(--red); font-size:11px; padding:6px 10px; background:rgba(248,113,113,0.07); border-radius:4px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef, useCallback } = React;
+
+const PROXY_URL = "https://silver-proxy.vercel.app/api/query";
+const AUTH_URL  = "https://silver-proxy.vercel.app/api/auth";
+const EXCLUDE   = "warehouseName NOT IN ('ИМ-курьеры', 'Склад ОЗОН', 'ИМ-отгрузка')";
+
+const YEARS = [2022,2023,2024,2025,2026];
+const YC = {2022:'#5b7fe8',2023:'#e05555',2024:'#3cb371',2025:'#d4af37',2026:'#999'};
+const MONTHS_S = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const MONTHS   = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+const SHOPS    = ['Аэропорт','БУМ','Варшавский','Дружба','Дружба ИМ','Европейский','Калейдоскоп','Калужский','Колумбус','Ладья','Речной','Щёлковский'];
+
+async function queryDB(sql) {
+  const r = await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql})});
+  const j = await r.json();
+  if (j.error) throw new Error(j.error);
+  return j.data||[];
+}
+
+const fmt = n => {
+  if (!n||isNaN(n)) return '—';
+  if (n>=1e9) return (n/1e9).toFixed(1).replace('.',',')+' МЛД ₽';
+  if (n>=1e6) return (n/1e6).toFixed(1).replace('.',',')+' М ₽';
+  if (n>=1e3) return Math.round(n/1e3)+'К ₽';
+  return Math.round(n)+' ₽';
+};
+const fmtN  = n => (!n||isNaN(n)) ? '—' : Math.round(n).toLocaleString('ru');
+const fmtP  = n => (!n||isNaN(n)) ? '—' : Math.round(n).toLocaleString('ru')+' ₽';
+const fmtTick = n => n>=1e6?(n/1e6).toFixed(0)+'М':n>=1e3?(n/1e3).toFixed(0)+'К':String(Math.round(n));
+const pct   = (a,b) => (!a||!b) ? null : Math.round((a-b)/b*100);
+
+// ── Login ──────────────────────────────────────────────────────────
+function LoginScreen({onLogin}) {
+  const [login,setLogin]=useState(''), [pass,setPass]=useState('');
+  const [err,setErr]=useState(''), [loading,setLoading]=useState(false);
+  const go = async () => {
+    setLoading(true); setErr('');
+    try {
+      const r=await fetch(AUTH_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({login,password:pass})});
+      const j=await r.json();
+      if(j.ok){sessionStorage.setItem('silver_auth','1');onLogin();}
+      else setErr('Неверный логин или пароль');
+    } catch { setErr('Ошибка соединения'); }
+    setLoading(false);
+  };
+  return (
+    <div className="login-bg">
+      <div className="login-box">
+        <div className="login-logo">СИЛЬВЕР</div>
+        <div className="login-sub">АНАЛИТИКА · ТРЕНДЫ</div>
+        <input className="login-input" placeholder="Логин" value={login} onChange={e=>setLogin(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()}/>
+        <input className="login-input" type="password" placeholder="Пароль" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()}/>
+        <button className="login-btn" onClick={go} disabled={loading}>{loading?'Вход...':'ВОЙТИ'}</button>
+        {err&&<div className="login-err">{err}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ── KPI Card ───────────────────────────────────────────────────────
+function KpiCard({label,value,prev,prevYear,fmtFn,color}) {
+  const p = pct(value,prev);
+  const cls = p==null?'neu':p>=0?'pos':'neg';
+  return (
+    <div className="kpi-card" style={{'--ca':color}}>
+      <div className="kpi-label">{label}</div>
+      <div className="kpi-main">{fmtFn(value)}</div>
+      <div className="kpi-sub">
+        {prev!=null&&<span className="kpi-prev">{prevYear}: {fmtFn(prev)}</span>}
+        {p!=null&&<span className={`badge ${cls}`}>{p>0?'+':''}{p}%</span>}
+      </div>
+    </div>
+  );
+}
+
+// ── SVG Line Chart ─────────────────────────────────────────────────
+function SvgChart({data, metricKey, fmtFn, currentYear, title}) {
+  const svgRef = useRef(null);
+  const [tooltip, setTooltip] = useState(null); // {x,y,moIdx,values}
+  const W=700, H=160, PL=46, PR=12, PT=8, PB=22;
+  const cW=W-PL-PR, cH=H-PT-PB;
+  const n = data.length;
+
+  // compute min/max across all years
+  const allVals = useMemo(()=>{
+    const v=[];
+    data.forEach(row=>YEARS.forEach(yr=>{ const val=row[`${yr}_${metricKey}`]; if(val!=null&&val>0) v.push(val); }));
+    return v;
+  },[data,metricKey]);
+  const maxV = allVals.length ? Math.max(...allVals)*1.08 : 1;
+  const minV = 0;
+
+  const xPos = i => PL + (n<=1 ? cW/2 : i/(n-1)*cW);
+  const yPos = v => PT + cH - ((v-minV)/(maxV-minV))*cH;
+
+  // Build path for each year
+  const buildPath = (yr) => {
+    let d=''; let first=true;
+    data.forEach((row,i)=>{
+      const v=row[`${yr}_${metricKey}`];
+      if(v==null||v===0){first=true;return;}
+      const x=xPos(i), y=yPos(v);
+      d += first?`M${x},${y}`:`L${x},${y}`;
+      first=false;
+    });
+    return d;
+  };
+
+  // Area path for current year (filled)
+  const buildArea = (yr) => {
+    const pts=[];
+    data.forEach((row,i)=>{
+      const v=row[`${yr}_${metricKey}`];
+      if(v!=null&&v>0) pts.push([xPos(i),yPos(v)]);
+    });
+    if(!pts.length) return '';
+    let d=`M${pts[0][0]},${PT+cH}`;
+    pts.forEach(([x,y])=>{ d+=`L${x},${y}`; });
+    d+=`L${pts[pts.length-1][0]},${PT+cH}Z`;
+    return d;
+  };
+
+  // Y-axis ticks
+  const yTicks = useMemo(()=>{
+    const ticks=[]; const steps=4;
+    for(let i=0;i<=steps;i++) ticks.push(minV+(maxV-minV)*i/steps);
+    return ticks;
+  },[maxV]);
+
+  // Mouse move handler
+  const handleMouseMove = useCallback((e)=>{
+    const svg = svgRef.current;
+    if(!svg||!n) return;
+    const rect=svg.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)/rect.width*W;
+    // find closest month index
+    let best=0, bestDist=Infinity;
+    for(let i=0;i<n;i++){
+      const d=Math.abs(xPos(i)-mx);
+      if(d<bestDist){bestDist=d;best=i;}
+    }
+    const row=data[best];
+    const values=YEARS.map(yr=>({yr,val:row[`${yr}_${metricKey}`]||null,color:YC[yr]}))
+      .filter(v=>v.val!=null&&v.val>0)
+      .sort((a,b)=>b.val-a.val);
+    // tooltip position
+    const sx=xPos(best)/W*rect.width+rect.left;
+    const sy=rect.top+PT;
+    setTooltip({clientX:e.clientX,clientY:e.clientY,moIdx:best,values,monthName:MONTHS_S[best]});
+  },[data,n,metricKey]);
+
+  const handleMouseLeave = () => setTooltip(null);
+
+  if(!data.length) return <div className="no-data">Нет данных</div>;
+
+  const gradId=`ag_${metricKey}`;
+
+  return (
+    <div className="chart-wrap" style={{position:'relative'}}>
+      <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:H,display:'block',cursor:'crosshair'}}
+        onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+        <defs>
+          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={YC[currentYear]} stopOpacity="0.18"/>
+            <stop offset="100%" stopColor={YC[currentYear]} stopOpacity="0"/>
+          </linearGradient>
+        </defs>
+        {/* Grid */}
+        {yTicks.map((v,i)=>(
+          <g key={i}>
+            <line x1={PL} x2={W-PR} y1={yPos(v)} y2={yPos(v)} stroke="rgba(212,175,55,0.06)" strokeDasharray="2 5"/>
+            <text x={PL-4} y={yPos(v)+3} textAnchor="end" fontSize={9} fill="#5a5040">{fmtTick(v)}</text>
+          </g>
+        ))}
+        {/* X labels */}
+        {data.map((row,i)=>(
+          <text key={i} x={xPos(i)} y={H-4} textAnchor="middle" fontSize={9} fill="#5a5040">{row.name}</text>
+        ))}
+        {/* Vertical hover line */}
+        {tooltip && (
+          <line x1={xPos(tooltip.moIdx)} x2={xPos(tooltip.moIdx)} y1={PT} y2={PT+cH}
+            stroke="rgba(212,175,55,0.15)" strokeDasharray="2 4"/>
+        )}
+        {/* Area for current year */}
+        <path d={buildArea(currentYear)} fill={`url(#${gradId})`}/>
+        {/* Lines - background years first */}
+        {YEARS.filter(yr=>yr!==currentYear).map(yr=>(
+          <path key={yr} d={buildPath(yr)} fill="none" stroke={YC[yr]} strokeWidth="1.2" strokeOpacity="0.4"/>
+        ))}
+        {/* Current year line on top */}
+        <path d={buildPath(currentYear)} fill="none" stroke={YC[currentYear]} strokeWidth="2.5"/>
+        {/* Hover dots */}
+        {tooltip && YEARS.map(yr=>{
+          const row=data[tooltip.moIdx];
+          const v=row?.[`${yr}_${metricKey}`];
+          if(!v||v===0) return null;
+          return <circle key={yr} cx={xPos(tooltip.moIdx)} cy={yPos(v)} r={yr===currentYear?4:3}
+            fill={YC[yr]} stroke="#0f0e0b" strokeWidth="1.5" opacity={yr===currentYear?1:0.6}/>;
+        })}
+      </svg>
+      {/* Tooltip */}
+      {tooltip && (
+        <div className="svg-tooltip" style={{
+          left: tooltip.clientX + 12,
+          top: 8,
+          position:'absolute',
+          left: Math.min(tooltip.clientX - (svgRef.current?.getBoundingClientRect().left||0) + 12, W*0.55),
+        }}>
+          <div className="stt-month">{MONTHS[tooltip.moIdx]}</div>
+          {tooltip.values.map(({yr,val,color})=>(
+            <div key={yr} className={`stt-row${yr===currentYear?' cur':''}`}>
+              <div className="stt-yr">
+                <div className="stt-dot" style={{background:color}}/>
+                <span style={{color:yr===currentYear?'var(--gold)':'#6a5e48',fontWeight:yr===currentYear?600:400}}>{yr}</span>
+              </div>
+              <span className="stt-val" style={{color:yr===currentYear?'var(--text)':'#8a7a60'}}>{fmtFn(val)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Chart({data,metricKey,fmtFn,title,currentYear,loading}) {
+  const Legend = () => (
+    <div className="cs-legend">
+      {YEARS.map(yr=>{
+        const cur=yr===currentYear;
+        return (
+          <div className="cs-li" key={yr}>
+            <div style={{width:cur?20:14,height:cur?3:1.5,borderRadius:2,background:YC[yr],opacity:cur?1:0.5}}/>
+            <span style={{color:cur?YC[yr]:'#5a5040',fontWeight:cur?600:400,fontSize:10}}>{yr}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+  return (
+    <div className="chart-section">
+      <div className="cs-head"><span className="cs-title">{title}</span><Legend/></div>
+      {loading
+        ? <div className="spinner-wrap"><div className="spinner"/><span style={{color:'#a0936a',fontSize:11}}>Загрузка...</span></div>
+        : <SvgChart data={data} metricKey={metricKey} fmtFn={fmtFn} currentYear={currentYear} title={title}/>
+      }
+    </div>
+  );
+}
+
+// ── Dashboard ──────────────────────────────────────────────────────
+function Dashboard() {
+  const NOW = useRef(new Date()).current;
+  const CY  = NOW.getFullYear();
+  const [selYear,  setSelYear]  = useState(CY);
+  const [selMonth, setSelMonth] = useState(null);
+  const [selShops, setSelShops] = useState(new Set(SHOPS));
+  const [allCols,  setAllCols]  = useState([]);
+  const [selCols,  setSelCols]  = useState(new Set());
+  const [blocked,  setBlocked]  = useState(new Set());
+  const [search,   setSearch]   = useState('');
+  const [rawData,  setRawData]  = useState(null);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState('');
+
+  useEffect(()=>{
+    queryDB(`SELECT DISTINCT collectionArticle FROM sales WHERE ${EXCLUDE} AND collectionArticle IS NOT NULL AND collectionArticle!='' ORDER BY collectionArticle`)
+      .then(rows=>{ const c=rows.map(r=>r.collectionArticle).filter(Boolean); setAllCols(c); setSelCols(new Set(c)); })
+      .catch(()=>{});
+  },[]);
+
+  useEffect(()=>{
+    const shops=[...selShops], cols=[...selCols].filter(c=>!blocked.has(c));
+    if(!shops.length||!cols.length){setRawData({});return;}
+    let dead=false;
+    (async()=>{
+      setLoading(true); setError('');
+      try {
+        const sl=shops.map(s=>`'${s.replace(/'/g,"''")}'`).join(',');
+        const cl=cols.map(c=>`'${c.replace(/'/g,"''")}'`).join(',');
+        const mc=selMonth!=null?`AND MONTH(docDate)=${selMonth+1}`:'';
+        const res=await Promise.all(YEARS.map(yr=>queryDB(`
+          SELECT ${yr} AS yr, MONTH(docDate) AS mo, SUM(sum) AS revenue, SUM(quantity) AS qty
+          FROM sales WHERE YEAR(docDate)=${yr} ${mc}
+            AND ${EXCLUDE} AND warehouseName IN (${sl}) AND collectionArticle IN (${cl})
+          GROUP BY MONTH(docDate) ORDER BY MONTH(docDate)
+        `)));
+        if(dead)return;
+        const m={};
+        for(let i=1;i<=12;i++)m[i]={};
+        res.forEach((rows,yi)=>{ const yr=YEARS[yi]; rows.forEach(r=>{m[r.mo][yr]={revenue:+r.revenue||0,qty:+r.qty||0};}); });
+        setRawData(m);
+      } catch(e){if(!dead)setError(e.message);}
+      if(!dead)setLoading(false);
+    })();
+    return()=>{dead=true;};
+  },[selMonth,selShops,selCols,blocked]);
+
+  const chartData = useMemo(()=>{
+    if(!rawData)return[];
+    const n=selMonth!=null?selMonth+1:12;
+    return Array.from({length:n},(_,i)=>{
+      const mo=i+1, row={name:MONTHS_S[i]};
+      YEARS.forEach(yr=>{ const d=rawData[mo]?.[yr]; row[`${yr}_rev`]=d?.revenue||null; row[`${yr}_qty`]=d?.qty||null; row[`${yr}_price`]=(d?.revenue&&d?.qty)?d.revenue/d.qty:null; });
+      return row;
+    });
+  },[rawData,selMonth]);
+
+  const totals = useMemo(()=>{
+    if(!rawData)return{};
+    const months=selMonth!=null?[selMonth+1]:Array.from({length:12},(_,i)=>i+1);
+    const t={};
+    YEARS.forEach(yr=>{ let rev=0,qty=0; months.forEach(mo=>{const d=rawData[mo]?.[yr];if(d){rev+=d.revenue;qty+=d.qty;}}); t[yr]={revenue:rev||null,qty:qty||null,price:qty?rev/qty:null}; });
+    return t;
+  },[rawData,selMonth]);
+
+  const activeCols = useMemo(()=>[...selCols].filter(c=>!blocked.has(c)),[selCols,blocked]);
+  const filtCols   = useMemo(()=>allCols.filter(c=>!search||c.toLowerCase().includes(search.toLowerCase())),[allCols,search]);
+
+  const togShop = s=>{const ns=new Set(selShops);ns.has(s)?ns.delete(s):ns.add(s);setSelShops(ns);};
+  const togColl = c=>{const ns=new Set(selCols);ns.has(c)?ns.delete(c):ns.add(c);setSelCols(ns);};
+  const togBlk  = c=>{const ns=new Set(blocked);ns.has(c)?ns.delete(c):ns.add(c);setBlocked(ns);};
+
+  const kpiC=totals[selYear]||{}, kpiP=totals[selYear-1]||{};
+  const periodLabel = selMonth!=null?`${MONTHS[selMonth]} ${selYear}`:`${selYear} · все месяцы`;
+
+  return (
+    <div style={{display:'flex',flexDirection:'column',height:'100vh',overflow:'hidden'}}>
+
+      {/* HEADER */}
+      <div className="header">
+        <div className="header-row1">
+          <div className="logo">СИЛЬВЕР ◆ АНАЛИТИКА ПРОДАЖ</div>
+          <div className="year-btns">
+            {YEARS.map(y=><button key={y} className={`ybtn${selYear===y?' on':''}`} onClick={()=>setSelYear(y)}>{y}</button>)}
+          </div>
+        </div>
+        <div className="header-row2">
+          <div className="header-title">Тренды год к году</div>
+          <div className="header-sub">{periodLabel} · {activeCols.length} кол. · {selShops.size} маг.</div>
+        </div>
+        <div className="shop-bar">
+          <button className={`sbtn sbtn-all${selShops.size===SHOPS.length?' on':''}`}
+            onClick={()=>setSelShops(selShops.size===SHOPS.length?new Set():new Set(SHOPS))}>
+            {selShops.size===SHOPS.length?'◆ Все':'Все'}
+          </button>
+          {SHOPS.map(s=><button key={s} className={`sbtn${selShops.has(s)?' on':''}`} onClick={()=>togShop(s)}>{s}</button>)}
+        </div>
+        <div className="month-bar">
+          <button className={`mbtn${selMonth===null?' on':''}`} onClick={()=>setSelMonth(null)}>Все месяцы</button>
+          {MONTHS.map((m,i)=><button key={i} className={`mbtn${selMonth===i?' on':''}`} onClick={()=>setSelMonth(selMonth===i?null:i)}>{m}</button>)}
+        </div>
+      </div>
+
+      <div className="layout">
+        {/* LEFT */}
+        <div className="left-panel">
+          <div className="lp-head">
+            <span>Коллекции ({activeCols.length})</span>
+            <div style={{display:'flex',gap:8}}>
+              <button onClick={()=>setSelCols(new Set(allCols))}>Все</button>
+              <button onClick={()=>setSelCols(new Set())}>Сброс</button>
+            </div>
+          </div>
+          <div className="lp-search"><input placeholder="Поиск..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+          <div className="lp-list">
+            {!allCols.length&&<div style={{padding:14,color:'#444',fontSize:11,textAlign:'center'}}>Загрузка...</div>}
+            {filtCols.map(c=>{
+              const blk=blocked.has(c), sel=selCols.has(c);
+              return (
+                <div key={c} className={`coll-item${blk?' excluded':''}`} title={c}>
+                  <input type="checkbox" id={`c_${c}`} checked={sel&&!blk} onChange={()=>togColl(c)} disabled={blk}/>
+                  <label htmlFor={`c_${c}`}>{c}</label>
+                  <button className="block-btn" title={blk?'Снять':'Заблокировать'} onClick={()=>togBlk(c)} style={{color:blk?'#f87171':'#2e2b22'}}>{blk?'✕':'⊘'}</button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* CENTER */}
+        <div className="center">
+          {error&&<div className="err-bar">{error}</div>}
+
+          {/* KPI */}
+          <div className="kpi-row">
+            <KpiCard label={`Выручка ${selYear}`} value={kpiC.revenue} prev={kpiP.revenue} prevYear={selYear-1} fmtFn={fmt} color={YC[selYear]}/>
+            <KpiCard label={`Количество ${selYear}`} value={kpiC.qty} prev={kpiP.qty} prevYear={selYear-1}
+              fmtFn={n=>!n?'—':Math.round(n).toLocaleString('ru')+' шт'} color={YC[selYear]}/>
+            <KpiCard label={`Средняя цена ${selYear}`} value={kpiC.price} prev={kpiP.price} prevYear={selYear-1} fmtFn={fmtP} color={YC[selYear]}/>
+          </div>
+
+          <Chart data={chartData} metricKey="rev"   fmtFn={fmt}  title="ВЫРУЧКА"       currentYear={selYear} loading={loading}/>
+          <Chart data={chartData} metricKey="qty"   fmtFn={v=>fmtN(v)+' шт'} title="КОЛИЧЕСТВО" currentYear={selYear} loading={loading}/>
+          <Chart data={chartData} metricKey="price" fmtFn={fmtP} title="СРЕДНЯЯ ЦЕНА"  currentYear={selYear} loading={loading}/>
+        </div>
+
+        {/* RIGHT */}
+        <div className="right-panel">
+          {[{k:'revenue',l:'Выручка',f:fmt},{k:'qty',l:'Количество',f:fmtN},{k:'price',l:'Ср. цена',f:fmtP}].map(({k,l,f})=>(
+            <div className="rp-section" key={k}>
+              <div className="rp-label">{l}</div>
+              {YEARS.map((yr,yi)=>{
+                const cur=totals[yr]?.[k], prev=yi>0?totals[YEARS[yi-1]]?.[k]:null;
+                const p=pct(cur,prev), cls=p==null?'':p>=0?'pos':'neg';
+                return (
+                  <div className="rp-row" key={yr}>
+                    <span className={`rp-badge y${yr}`}>{yr}</span>
+                    <span className="rp-val">{f(cur)}</span>
+                    {p!=null&&<span className={`rp-pct ${cls}`}>{p>0?'+':''}{p}%</span>}
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="footer">
+        <span>СИЛЬВЕР · ТРЕНДЫ · {NOW.toLocaleDateString('ru',{day:'2-digit',month:'2-digit',year:'numeric'})}</span>
+        <button onClick={()=>{sessionStorage.removeItem('silver_auth');window.location.reload();}}>Выйти</button>
+      </div>
+    </div>
+  );
+}
+
+function App() {
+  const [auth,setAuth]=useState(!!sessionStorage.getItem('silver_auth'));
+  if(!auth) return <LoginScreen onLogin={()=>setAuth(true)}/>;
+  return <Dashboard/>;
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
