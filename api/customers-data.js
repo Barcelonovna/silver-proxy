@@ -1,21 +1,21 @@
 // api/customers-data.js
-// Читает приватные Blob-файлы через download() — работает быстро (~100ms).
+// Читает данные из Vercel Blob через list() + публичный URL.
 // GET ?type=overview | clients | status
 
-const { list, download } = require('@vercel/blob');
+const { list } = require('@vercel/blob');
 
 const TOKEN = process.env.BLOB_READ_WRITE_TOKEN;
 
-async function readBlobByPath(pathname) {
-  // Ищем blob по pathname через list
-  const { blobs } = await list({ prefix: pathname, token: TOKEN });
-  const blob = blobs.find(b => b.pathname === pathname);
+// Находим blob по точному имени файла и читаем его как JSON
+async function readBlob(filename) {
+  const { blobs } = await list({ prefix: filename, token: TOKEN, limit: 5 });
+  // Ищем точное совпадение по pathname
+  const blob = blobs.find(b => b.pathname === filename);
   if (!blob) return null;
-
-  // Скачиваем содержимое
-  const response = await download(blob.url, { token: TOKEN });
-  const text = await response.text();
-  return JSON.parse(text);
+  // Публичный URL — читаем напрямую fetch
+  const r = await fetch(blob.url);
+  if (!r.ok) throw new Error(`Blob fetch ${filename} failed: ${r.status}`);
+  return r.json();
 }
 
 export default async function handler(req, res) {
@@ -27,27 +27,28 @@ export default async function handler(req, res) {
   const { type } = req.query;
 
   try {
-    // Читаем meta-файл
-    const meta = await readBlobByPath('silver/customers-meta.json');
-
     if (type === 'status') {
+      const meta = await readBlob('silver/customers-meta.json');
       if (!meta) return res.status(200).json({ ready: false });
       return res.status(200).json({ ready: true, computedAt: meta.computedAt, total: meta.total });
     }
 
+    // Для всех остальных типов сначала читаем meta
+    const meta = await readBlob('silver/customers-meta.json');
     if (!meta) {
       return res.status(404).json({ error: 'No data. Run /api/precompute first.' });
     }
 
     if (type === 'overview') {
-      const data = await readBlobByPath(meta.overviewPath);
-      if (!data) return res.status(404).json({ error: 'Overview not found in Blob.' });
+      // Читаем по URL из meta (быстрее чем list снова)
+      const r = await fetch(meta.overviewUrl);
+      const data = await r.json();
       return res.status(200).json(data);
     }
 
     if (type === 'clients') {
-      const data = await readBlobByPath(meta.clientsPath);
-      if (!data) return res.status(404).json({ error: 'Clients not found in Blob.' });
+      const r = await fetch(meta.clientsUrl);
+      const data = await r.json();
       return res.status(200).json(data);
     }
 

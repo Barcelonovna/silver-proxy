@@ -1,4 +1,6 @@
 // api/precompute.js
+// Сохраняет кэш аналитики в Vercel Blob (Public store).
+
 const mysql = require('mysql2/promise');
 const { put } = require('@vercel/blob');
 
@@ -22,22 +24,19 @@ async function getDB() {
 
 async function safeQuery(conn, sql, label) {
   const result = await conn.execute(sql);
-  const rows = Array.isArray(result[0]) ? result[0] : (Array.isArray(result) ? result : []);
-  if (!Array.isArray(rows)) throw new Error(`Запрос "${label}" вернул не массив: ${typeof rows}`);
+  const rows = Array.isArray(result) && Array.isArray(result[0]) ? result[0] : [];
   return rows;
 }
 
 async function saveBlob(filename, data) {
   const json = JSON.stringify(data);
-  // access: 'private' — совместимо с Private Blob store
   const result = await put(filename, json, {
-    access: 'private',
-    addRandomSuffix: false,
+    access: 'public',           // Public store требует public
+    addRandomSuffix: false,     // Фиксированное имя — перезапись при пересчёте
     contentType: 'application/json',
     token: process.env.BLOB_READ_WRITE_TOKEN,
   });
-  // Возвращаем pathname для последующего чтения через download()
-  return result.pathname;
+  return result.url; // Возвращаем публичный URL для чтения
 }
 
 export default async function handler(req, res) {
@@ -143,8 +142,8 @@ export default async function handler(req, res) {
     const enriched = clientRows
       .filter(r => r.clientPhone && cardMap[r.clientPhone])
       .map(r => {
-        const card = cardMap[r.clientPhone] || {};
-        const smsCnt  = smsMap[r.clientPhone] || 0;
+        const card    = cardMap[r.clientPhone] || {};
+        const smsCnt  = smsMap[r.clientPhone]  || 0;
         const rv  = Number(r.real_visits)  || 0;
         const gv  = Number(r.gift_visits)  || 0;
         const rev = Number(r.revenue)      || 0;
@@ -172,6 +171,7 @@ export default async function handler(req, res) {
       });
     log.push(`✓ enriched: ${enriched.length}`);
 
+    // Агрегаты для обзора
     const totalCards  = loyaltyRows.length;
     const buyers      = enriched.filter(r => r.rv > 0).length;
     const giftOnly    = enriched.filter(r => r.rv === 0 && r.gv > 0).length;
@@ -190,28 +190,32 @@ export default async function handler(req, res) {
 
     const computedAt = new Date().toISOString();
 
+    // Сохраняем в Blob — получаем публичные URL
     log.push('Сохраняем в Blob...');
-    const overviewPath = await saveBlob('silver/customers-overview.json', {
+
+    const overviewUrl = await saveBlob('silver/customers-overview.json', {
       computedAt, totalCards, buyers, giftOnly, giftAny, giftThenBuy, convRate,
       freqDist: Object.values(freqMap),
       genderDist: Object.entries(genderMap).map(([gender,cnt])=>({gender,cnt})).sort((a,b)=>b.cnt-a.cnt),
       shopStats: shopRows, collectionStats: collectionRows, monthlyStats: monthlyRows,
     });
-    log.push(`✓ overview: ${overviewPath}`);
+    log.push(`✓ overview: ${overviewUrl}`);
 
-    const clientsPath = await saveBlob('silver/customers-clients.json', {
+    const clientsUrl = await saveBlob('silver/customers-clients.json', {
       computedAt, total: enriched.length, clients: enriched,
     });
-    log.push(`✓ clients: ${clientsPath}`);
+    log.push(`✓ clients: ${clientsUrl}`);
 
-    // Meta хранит pathname для последующего чтения
-    await saveBlob('silver/customers-meta.json', {
-      computedAt, overviewPath, clientsPath, total: enriched.length,
+    // Meta хранит публичные URL двух файлов
+    const metaUrl = await saveBlob('silver/customers-meta.json', {
+      computedAt, overviewUrl, clientsUrl, total: enriched.length,
     });
-    log.push('✓ meta saved');
+    log.push(`✓ meta: ${metaUrl}`);
 
+    // Сохраняем metaUrl в env недоступно — возвращаем его в ответе
+    // customers-data.js будет искать meta через list()
     const elapsed = ((Date.now() - t0) / 1000).toFixed(1);
-    return res.status(200).json({ ok: true, elapsed: `${elapsed}s`, clients: enriched.length, log });
+    return res.status(200).json({ ok: true, elapsed: `${elapsed}s`, clients: enriched.length, metaUrl, log });
 
   } catch (err) {
     console.error('Precompute error:', err);
