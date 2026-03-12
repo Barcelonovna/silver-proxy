@@ -4,11 +4,11 @@
     "api/query.js":          { "maxDuration": 15 },
     "api/sheets.js":         { "maxDuration": 10 },
     "api/precompute.js":     { "maxDuration": 60 },
-    "api/setup.js": { "maxDuration": 60 },
     "api/customers-data.js": { "maxDuration": 15 }
   },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/customers", "dest": "/public/customers.html" },
     { "src": "/(.*)",     "dest": "/public/$1" }
   ]
 }
