@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>СИЛЬВЕР · Аналитика покупателей</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f0e0b;--bg2:#1a1810;--bg3:#232015;
+  --gold:#d4af37;--gold-dim:#a0936a;--gold-bg:rgba(212,175,55,0.08);
+  --text:#e8dfc8;--text-dim:#4a4535;
+  --border:rgba(212,175,55,0.15);
+  --green:#4ade80;--red:#f87171;
+  --green-bg:rgba(74,222,128,0.12);--red-bg:rgba(248,113,113,0.12);
+  --blue:#60a5fa;--blue-bg:rgba(96,165,250,0.12);
+  --purple:#c084fc;--purple-bg:rgba(192,132,252,0.12);
+  --orange:#fb923c;--orange-bg:rgba(251,146,60,0.12);
+}
+body{background:var(--bg);color:var(--text);font-family:Georgia,'Times New Roman',serif;min-height:100vh}
+a{color:var(--gold);text-decoration:none}
+
+/* Header */
+.header{background:linear-gradient(135deg,#1a1608 0%,#0f0e0b 60%);border-bottom:1px solid var(--border);padding:18px 28px 14px}
+.header-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.logo{font-size:13px;letter-spacing:3px;color:var(--gold-dim)}
+.logo span{color:var(--gold)}
+h1{font-size:26px;font-weight:400;letter-spacing:1px;color:var(--text);margin-bottom:2px}
+.subtitle{font-size:13px;color:var(--gold-dim);margin-bottom:14px}
+
+/* Tabs */
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tbtn{padding:7px 18px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--gold-dim);font:inherit;font-size:13px;cursor:pointer;letter-spacing:0.5px;transition:all .2s}
+.tbtn:hover{border-color:var(--gold);color:var(--text)}
+.tbtn.on{background:var(--gold);color:#0f0e0b;border-color:var(--gold);font-weight:700}
+
+/* Content */
+.content{padding:20px 28px 80px;max-width:1400px;margin:0 auto}
+
+/* KPI Cards */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px 20px}
+.kpi-label{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold-dim);margin-bottom:8px}
+.kpi-value{font-size:28px;color:var(--text);font-weight:400}
+.kpi-sub{font-size:12px;color:var(--gold-dim);margin-top:4px}
+
+/* Tables */
+table{width:100%;border-collapse:collapse;font-size:14px}
+th{font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--gold-dim);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);cursor:default;white-space:nowrap}
+td{padding:9px 12px;border-bottom:1px solid rgba(212,175,55,0.06);color:var(--text)}
+tr:hover td{background:rgba(212,175,55,0.03)}
+.sortable{cursor:pointer;user-select:none}
+.sortable:hover{color:var(--gold)}
+.sortable.asc::after{content:" ▲";font-size:9px;color:var(--gold)}
+.sortable.desc::after{content:" ▼";font-size:9px;color:var(--gold)}
+.tbl-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:20px}
+.tbl-title{padding:14px 18px 10px;font-size:15px;color:var(--text);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.tbl-scroll{overflow-x:auto;max-height:520px;overflow-y:auto}
+
+/* Segment badges */
+.seg{display:inline-block;padding:3px 10px;border-radius:6px;font-size:12px;font-weight:700;letter-spacing:0.3px}
+.seg-vip{color:#fbbf24;background:rgba(251,191,36,0.12)}
+.seg-loyal{color:#4ade80;background:rgba(74,222,128,0.12)}
+.seg-active{color:#60a5fa;background:rgba(96,165,250,0.12)}
+.seg-sleeping{color:#fb923c;background:rgba(251,146,60,0.12)}
+.seg-lost{color:#f87171;background:rgba(248,113,113,0.12)}
+.seg-freebie{color:#a78bfa;background:rgba(167,139,250,0.12)}
+.seg-potential{color:#2dd4bf;background:rgba(45,212,191,0.12)}
+
+/* Filters */
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;align-items:center}
+.filter-label{font-size:12px;color:var(--gold-dim);letter-spacing:0.5px}
+select{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font:inherit;font-size:13px;cursor:pointer}
+select:focus{outline:none;border-color:var(--gold)}
+input[type=text]{background:var(--bg2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font:inherit;font-size:13px}
+input[type=text]:focus{outline:none;border-color:var(--gold)}
+
+/* Export button */
+.btn-export{padding:7px 16px;border-radius:6px;border:1px solid var(--gold);background:transparent;color:var(--gold);font:inherit;font-size:12px;cursor:pointer;letter-spacing:0.5px;transition:all .2s}
+.btn-export:hover{background:var(--gold);color:#0f0e0b}
+
+/* Bar chart */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+.bar-label{width:100px;font-size:12px;color:var(--gold-dim);text-align:right;flex-shrink:0}
+.bar-track{flex:1;height:22px;background:rgba(212,175,55,0.06);border-radius:4px;overflow:hidden;position:relative}
+.bar-fill{height:100%;border-radius:4px;transition:width 0.6s ease}
+.bar-val{font-size:12px;color:var(--text);width:70px;text-align:right;flex-shrink:0}
+
+/* Footer */
+.footer{position:fixed;bottom:0;left:0;right:0;background:var(--bg2);border-top:1px solid var(--border);padding:10px 28px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--text-dim)}
+.footer button{background:none;border:1px solid var(--border);color:var(--gold-dim);font:inherit;font-size:11px;padding:4px 14px;border-radius:4px;cursor:pointer}
+.footer button:hover{border-color:var(--gold);color:var(--gold)}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+
+/* Animations */
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeIn 0.4s ease both}
+
+/* Two-col layout */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:20px}
+@media(max-width:900px){.grid-2{grid-template-columns:1fr}}
+
+/* Login */
+.login-wrap{display:flex;align-items:center;justify-content:center;height:100vh;background:var(--bg)}
+.login-box{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:40px;width:340px;text-align:center}
+.login-box h2{font-size:20px;font-weight:400;color:var(--text);margin-bottom:6px}
+.login-box .sub{font-size:12px;color:var(--gold-dim);margin-bottom:24px}
+.login-box input{width:100%;padding:10px 14px;margin-bottom:12px;background:var(--bg);border:1px solid var(--border);border-radius:6px;color:var(--text);font:inherit;font-size:14px}
+.login-box input:focus{outline:none;border-color:var(--gold)}
+.login-box button{width:100%;padding:10px;background:var(--gold);color:#0f0e0b;border:none;border-radius:6px;font:inherit;font-size:14px;font-weight:700;cursor:pointer}
+.login-box .err{color:var(--red);font-size:12px;margin-top:8px}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useMemo,useCallback} = React;
+
+/* ── API ── */
+const PROXY = "/api/query";
+const AUTH   = "/api/auth";
+
+async function queryDB(sql){
+  const r = await fetch(PROXY,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({sql})});
+  const j = await r.json();
+  if(j.error) throw new Error(j.error);
+  return j.data||[];
+}
+
+/* ── Helpers ── */
+const fmt = n => n==null?"—":Number(n).toLocaleString("ru-RU");
+const fmtK = n => n==null?"—":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?Math.round(n/1e3)+"K":fmt(n);
+const pct = (a,b) => b?Math.round(a/b*100):0;
+
+/* ── RFM Segments ── */
+function assignSegment(row){
+  const {real_visits:rv, gift_visits:gv, revenue, days_since_buy:dsb, avg_price} = row;
+  const r = Number(rv)||0, g = Number(gv)||0, rev = Number(revenue)||0, d = Number(dsb), ap = Number(avg_price)||0;
+
+  // Халявщик: только подарки, без реальных покупок
+  if(r===0 && g>0) return "Халявщик";
+  // Нет покупок вообще (только карта)
+  if(r===0 && g===0) return "Потенциальный";
+  // VIP: много визитов + высокая выручка + недавно покупал
+  if(r>=5 && rev>=30000 && d<=90) return "VIP";
+  // Лояльный: регулярный покупатель
+  if(r>=3 && d<=180) return "Лояльный";
+  // Активный: покупает, но не часто
+  if(r>=1 && d<=120) return "Активный";
+  // Спящий: давно не покупал
+  if(r>=1 && d>120 && d<=365) return "Спящий";
+  // Потерянный: больше года не покупал
+  if(r>=1 && d>365) return "Потерянный";
+  return "Потенциальный";
+}
+
+const SEG_CLASSES = {
+  "VIP":"seg-vip","Лояльный":"seg-loyal","Активный":"seg-active",
+  "Спящий":"seg-sleeping","Потерянный":"seg-lost","Халявщик":"seg-freebie","Потенциальный":"seg-potential"
+};
+const SEG_ORDER = ["VIP","Лояльный","Активный","Спящий","Потерянный","Халявщик","Потенциальный"];
+
+/* ── Components ── */
+function Spinner(){
+  return <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",height:320,gap:16}}>
+    <div style={{width:44,height:44,borderRadius:"50%",border:"3px solid var(--border)",borderTop:"3px solid var(--gold)",animation:"spin 0.85s linear infinite"}}/>
+    <span style={{color:"var(--gold-dim)",fontSize:13,letterSpacing:1}}>Загрузка данных...</span>
+  </div>;
+}
+
+function PctBadge({value}){
+  if(value===null||value===undefined||isNaN(value)) return <span style={{color:"#555"}}>—</span>;
+  const c=value>=0?"var(--green)":"var(--red)";
+  const bg=value>=0?"var(--green-bg)":"var(--red-bg)";
+  return <span style={{color:c,background:bg,borderRadius:6,padding:"2px 9px",fontWeight:700,fontSize:13}}>
+    {value>0?"+":""}{Math.round(value)}%
+  </span>;
+}
+
+function SegBadge({seg}){
+  return <span className={`seg ${SEG_CLASSES[seg]||""}`}>{seg}</span>;
+}
+
+function useSortable(data,defaultKey,defaultDir='desc'){
+  const [sortKey,setSortKey]=useState(defaultKey);
+  const [sortDir,setSortDir]=useState(defaultDir);
+  const sorted=useMemo(()=>{
+    if(!sortKey||!data) return data||[];
+    return [...data].sort((a,b)=>{
+      const av=a[sortKey],bv=b[sortKey];
+      if(av===null||av===undefined) return 1;
+      if(bv===null||bv===undefined) return -1;
+      const cmp=typeof av==='string'?av.localeCompare(bv,'ru'):av-bv;
+      return sortDir==='asc'?cmp:-cmp;
+    });
+  },[data,sortKey,sortDir]);
+  const toggle=key=>{if(sortKey===key)setSortDir(d=>d==='asc'?'desc':'asc');else{setSortKey(key);setSortDir('desc');}};
+  const thProps=key=>({className:`sortable${sortKey===key?' '+sortDir:''}`,onClick:()=>toggle(key)});
+  return {sorted,thProps};
+}
+
+/* ── Login ── */
+function LoginScreen({onLogin}){
+  const [login,setLogin]=useState("");
+  const [pass,setPass]=useState("");
+  const [err,setErr]=useState("");
+  const submit=async()=>{
+    try{
+      const r=await fetch(AUTH,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({login,password:pass})});
+      const j=await r.json();
+      if(j.ok){sessionStorage.setItem("silver_auth","1");onLogin();}
+      else setErr("Неверный логин или пароль");
+    }catch(e){setErr("Ошибка соединения");}
+  };
+  return <div className="login-wrap"><div className="login-box">
+    <div style={{color:"var(--gold)",fontSize:13,letterSpacing:3,marginBottom:12}}>◆ СИЛЬВЕР</div>
+    <h2>Аналитика покупателей</h2>
+    <div className="sub">Вход в систему</div>
+    <input placeholder="Логин" value={login} onChange={e=>setLogin(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()}/>
+    <input placeholder="Пароль" type="password" value={pass} onChange={e=>setPass(e.target.value)} onKeyDown={e=>e.key==="Enter"&&submit()}/>
+    <button onClick={submit}>Войти</button>
+    {err&&<div className="err">{err}</div>}
+  </div></div>;
+}
+
+/* ── TAB 1: Overview ── */
+function OverviewTab({clients,loading}){
+  const [topShops,setTopShops]=useState([]);
+  const [topCollections,setTopCollections]=useState([]);
+  const [monthlyData,setMonthlyData]=useState([]);
+  const [loadingExtra,setLoadingExtra]=useState(true);
+
+  useEffect(()=>{
+    (async()=>{
+      try{
+        const EXCL="warehouseName NOT IN ('ИМ-курьеры','Склад ОЗОН','ИМ-отгрузка')";
+        const [shops,colls,monthly]=await Promise.all([
+          queryDB(`SELECT warehouseName, COUNT(DISTINCT clientPhone) as clients, ROUND(SUM(sum)) as revenue FROM sales WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone!='' AND price>1 GROUP BY warehouseName ORDER BY revenue DESC LIMIT 12`),
+          queryDB(`SELECT collectionArticle as coll, COUNT(DISTINCT clientPhone) as clients, ROUND(SUM(sum)) as revenue FROM sales WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone!='' AND price>1 AND collectionArticle IS NOT NULL AND collectionArticle!='' GROUP BY collectionArticle ORDER BY revenue DESC LIMIT 10`),
+          queryDB(`SELECT DATE_FORMAT(docDate,'%Y-%m') as mon, COUNT(DISTINCT clientPhone) as clients, ROUND(SUM(CASE WHEN price>1 THEN sum ELSE 0 END)) as revenue FROM sales WHERE ${EXCL} AND clientPhone IS NOT NULL AND clientPhone!='' AND YEAR(docDate)>=2024 GROUP BY mon ORDER BY mon`)
+        ]);
+        setTopShops(shops);
+        setTopCollections(colls);
+        setMonthlyData(monthly);
+      }catch(e){console.error(e);}
+      setLoadingExtra(false);
+    })();
+  },[]);
+
+  if(loading) return <Spinner/>;
+
+  const total = clients.length;
+  const buyers = clients.filter(c=>Number(c.real_visits)>0).length;
+  const onlyGifts = clients.filter(c=>Number(c.real_visits)===0&&Number(c.gift_visits)>0).length;
+  const totalRevenue = clients.reduce((s,c)=>s+(Number(c.revenue)||0),0);
+  const avgCheck = buyers>0?Math.round(totalRevenue/buyers):0;
+  const withGender = clients.filter(c=>c.gender).length;
+  const female = clients.filter(c=>c.gender==='Женский'||c.gender==='F'||c.gender==='f'||c.gender==='Ж'||c.gender==='ж').length;
+  const male = clients.filter(c=>c.gender==='Мужской'||c.gender==='M'||c.gender==='m'||c.gender==='М'||c.gender==='м').length;
+
+  // Segments
+  const segments = {};
+  SEG_ORDER.forEach(s=>segments[s]=0);
+  clients.forEach(c=>{const s=assignSegment(c);segments[s]=(segments[s]||0)+1;});
+
+  // Age distribution
+  const ageBuckets = {"<25":0,"25-34":0,"35-44":0,"45-54":0,"55+":0,"Н/Д":0};
+  clients.forEach(c=>{
+    const a=Number(c.age);
+    if(!a||a<=0||a>100) ageBuckets["Н/Д"]++;
+    else if(a<25) ageBuckets["<25"]++;
+    else if(a<35) ageBuckets["25-34"]++;
+    else if(a<45) ageBuckets["35-44"]++;
+    else if(a<55) ageBuckets["45-54"]++;
+    else ageBuckets["55+"]++;
+  });
+
+  const maxSeg = Math.max(...SEG_ORDER.map(s=>segments[s]||0));
+  const segColors={"VIP":"#fbbf24","Лояльный":"#4ade80","Активный":"#60a5fa","Спящий":"#fb923c","Потерянный":"#f87171","Халявщик":"#a78bfa","Потенциальный":"#2dd4bf"};
+
+  return <div className="fade-in">
+    {/* KPI */}
+    <div className="kpi-grid">
+      <div className="kpi">
+        <div className="kpi-label">Всего клиентов</div>
+        <div className="kpi-value">{fmt(total)}</div>
+        <div className="kpi-sub">в системе лояльности</div>
+      </div>
+      <div className="kpi">
+        <div className="kpi-label">Покупатели</div>
+        <div className="kpi-value">{fmt(buyers)}</div>
+        <div className="kpi-sub">{pct(buyers,total)}% от всех</div>
+      </div>
+      <div className="kpi">
+        <div className="kpi-label">Только подарки</div>
+        <div className="kpi-value">{fmt(onlyGifts)}</div>
+        <div className="kpi-sub">{pct(onlyGifts,total)}% от всех</div>
+      </div>
+      <div className="kpi">
+        <div className="kpi-label">Общая выручка</div>
+        <div className="kpi-value">{fmtK(totalRevenue)} ₽</div>
+        <div className="kpi-sub">средний чек {fmt(avgCheck)} ₽</div>
+      </div>
+      <div className="kpi">
+        <div className="kpi-label">Женщины / Мужчины</div>
+        <div className="kpi-value">{pct(female,withGender)}% / {pct(male,withGender)}%</div>
+        <div className="kpi-sub">из {fmt(withGender)} с указанным полом</div>
+      </div>
+    </div>
+
+    <div className="grid-2">
+      {/* Segments bar chart */}
+      <div className="tbl-wrap">
+        <div className="tbl-title">RFM-сегменты</div>
+        <div style={{padding:"16px 18px"}}>
+          {SEG_ORDER.map(s=><div className="bar-row" key={s}>
+            <div className="bar-label">{s}</div>
+            <div className="bar-track">
+              <div className="bar-fill" style={{width:`${(segments[s]/maxSeg)*100}%`,background:segColors[s]||"var(--gold)"}}/>
+            </div>
+            <div className="bar-val">{fmt(segments[s])} <span style={{color:"var(--gold-dim)",fontSize:11}}>({pct(segments[s],total)}%)</span></div>
+          </div>)}
+        </div>
+      </div>
+
+      {/* Age distribution */}
+      <div className="tbl-wrap">
+        <div className="tbl-title">Возрастные группы</div>
+        <div style={{padding:"16px 18px"}}>
+          {Object.entries(ageBuckets).map(([k,v])=>{
+            const maxA=Math.max(...Object.values(ageBuckets));
+            return <div className="bar-row" key={k}>
+              <div className="bar-label">{k}</div>
+              <div className="bar-track">
+                <div className="bar-fill" style={{width:`${(v/maxA)*100}%`,background:"var(--gold)"}}/>
+              </div>
+              <div className="bar-val">{fmt(v)} <span style={{color:"var(--gold-dim)",fontSize:11}}>({pct(v,total)}%)</span></div>
+            </div>;
+          })}
+        </div>
+      </div>
+    </div>
+
+    {loadingExtra?<Spinner/>:<>
+      <div className="grid-2">
+        {/* Top shops */}
+        <div className="tbl-wrap">
+          <div className="tbl-title">Топ магазинов по выручке</div>
+          <div className="tbl-scroll"><table>
+            <thead><tr><th>Магазин</th><th style={{textAlign:"right"}}>Клиенты</th><th style={{textAlign:"right"}}>Выручка</th></tr></thead>
+            <tbody>{topShops.map((r,i)=><tr key={i}>
+              <td>{r.warehouseName}</td>
+              <td style={{textAlign:"right"}}>{fmt(r.clients)}</td>
+              <td style={{textAlign:"right"}}>{fmtK(Number(r.revenue))} ₽</td>
+            </tr>)}</tbody>
+          </table></div>
+        </div>
+
+        {/* Top collections */}
+        <div className="tbl-wrap">
+          <div className="tbl-title">Топ коллекций по выручке</div>
+          <div className="tbl-scroll"><table>
+            <thead><tr><th>Коллекция</th><th style={{textAlign:"right"}}>Клиенты</th><th style={{textAlign:"right"}}>Выручка</th></tr></thead>
+            <tbody>{topCollections.map((r,i)=><tr key={i}>
+              <td>{r.coll}</td>
+              <td style={{textAlign:"right"}}>{fmt(r.clients)}</td>
+              <td style={{textAlign:"right"}}>{fmtK(Number(r.revenue))} ₽</td>
+            </tr>)}</tbody>
+          </table></div>
+        </div>
+      </div>
+
+      {/* Monthly dynamics */}
+      <div className="tbl-wrap">
+        <div className="tbl-title">Динамика по месяцам</div>
+        <div className="tbl-scroll"><table>
+          <thead><tr><th>Месяц</th><th style={{textAlign:"right"}}>Клиенты</th><th style={{textAlign:"right"}}>Выручка</th></tr></thead>
+          <tbody>{monthlyData.map((r,i)=><tr key={i}>
+            <td>{r.mon}</td>
+            <td style={{textAlign:"right"}}>{fmt(r.clients)}</td>
+            <td style={{textAlign:"right"}}>{fmtK(Number(r.revenue))} ₽</td>
+          </tr>)}</tbody>
+        </table></div>
+      </div>
+    </>}
+  </div>;
+}
+
+/* ── TAB 2: RFM Segments Table ── */
+function RfmTab({clients,loading}){
+  const [segFilter,setSegFilter]=useState("Все");
+  const [genderFilter,setGenderFilter]=useState("Все");
+  const [search,setSearch]=useState("");
+
+  const enriched = useMemo(()=>{
+    if(!clients) return [];
+    return clients.map(c=>({...c,
+      segment:assignSegment(c),
+      real_visits:Number(c.real_visits)||0,
+      gift_visits:Number(c.gift_visits)||0,
+      revenue:Number(c.revenue)||0,
+      avg_price:Number(c.avg_price)||0,
+      days_since_buy:c.days_since_buy!=null?Number(c.days_since_buy):null,
+      shops_count:Number(c.shops_count)||0,
+      age:Number(c.age)||null,
+      sms_count:Number(c.sms_count)||0,
+    }));
+  },[clients]);
+
+  const filtered = useMemo(()=>{
+    let d=enriched;
+    if(segFilter!=="Все") d=d.filter(c=>c.segment===segFilter);
+    if(genderFilter!=="Все") d=d.filter(c=>{
+      if(genderFilter==="Ж") return c.gender==='Женский'||c.gender==='F'||c.gender==='f'||c.gender==='Ж'||c.gender==='ж';
+      if(genderFilter==="М") return c.gender==='Мужской'||c.gender==='M'||c.gender==='m'||c.gender==='М'||c.gender==='м';
+      return !c.gender;
+    });
+    if(search) d=d.filter(c=>c.clientPhone&&c.clientPhone.includes(search));
+    return d;
+  },[enriched,segFilter,genderFilter,search]);
+
+  const {sorted,thProps}=useSortable(filtered,'revenue');
+
+  // Segment summary
+  const segSummary = useMemo(()=>{
+    const m={};
+    SEG_ORDER.forEach(s=>m[s]={count:0,revenue:0,avgPrice:0,avgVisits:0});
+    enriched.forEach(c=>{
+      const s=c.segment;
+      if(!m[s]) return;
+      m[s].count++;
+      m[s].revenue+=c.revenue;
+      m[s].avgVisits+=c.real_visits;
+    });
+    SEG_ORDER.forEach(s=>{
+      if(m[s].count>0){m[s].avgPrice=Math.round(m[s].revenue/m[s].count);m[s].avgVisits=Math.round(m[s].avgVisits/m[s].count*10)/10;}
+    });
+    return m;
+  },[enriched]);
+
+  if(loading) return <Spinner/>;
+
+  const exportCSV = () => {
+    const header = "Телефон;Сегмент;Покупки;Подарки;Выручка;Ср.цена;Дней без покупки;Магазинов;Пол;Возраст;SMS\n";
+    const rows = sorted.map(c=>[c.clientPhone,c.segment,c.real_visits,c.gift_visits,c.revenue,c.avg_price,c.days_since_buy||"",c.shops_count,c.gender||"",c.age||"",c.sms_count].join(";")).join("\n");
+    const blob=new Blob(["\uFEFF"+header+rows],{type:"text/csv;charset=utf-8"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="rfm_segments.csv";a.click();
+  };
+
+  return <div className="fade-in">
+    {/* Segment summary cards */}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(160px,1fr))",gap:10,marginBottom:18}}>
+      {SEG_ORDER.map(s=><div key={s} style={{background:"var(--bg2)",border:"1px solid var(--border)",borderRadius:8,padding:"12px 14px",cursor:"pointer",opacity:segFilter===s?1:0.7,outline:segFilter===s?`2px solid ${segColors[s]||"var(--gold)"}`:"none"}} onClick={()=>setSegFilter(segFilter===s?"Все":s)}>
+        <SegBadge seg={s}/>
+        <div style={{fontSize:22,marginTop:6,color:"var(--text)"}}>{fmt(segSummary[s].count)}</div>
+        <div style={{fontSize:11,color:"var(--gold-dim)"}}>выручка {fmtK(segSummary[s].revenue)} ₽</div>
+        <div style={{fontSize:11,color:"var(--gold-dim)"}}>ср. {segSummary[s].avgVisits} визитов</div>
+      </div>)}
+    </div>
+
+    <div className="filters">
+      <span className="filter-label">Пол:</span>
+      <select value={genderFilter} onChange={e=>setGenderFilter(e.target.value)}>
+        <option value="Все">Все</option>
+        <option value="Ж">Женщины</option>
+        <option value="М">Мужчины</option>
+        <option value="Н/Д">Не указан</option>
+      </select>
+      <input type="text" placeholder="Поиск по телефону..." value={search} onChange={e=>setSearch(e.target.value)} style={{marginLeft:8,width:200}}/>
+      <button className="btn-export" onClick={exportCSV} style={{marginLeft:"auto"}}>Экспорт CSV ↓</button>
+    </div>
+
+    <div className="tbl-wrap">
+      <div className="tbl-title">
+        <span>Клиенты — {segFilter==="Все"?"все сегменты":segFilter} ({fmt(filtered.length)})</span>
+      </div>
+      <div className="tbl-scroll"><table>
+        <thead><tr>
+          <th {...thProps('clientPhone')}>Телефон</th>
+          <th>Сегмент</th>
+          <th {...thProps('real_visits')}>Покупки</th>
+          <th {...thProps('gift_visits')}>Подарки</th>
+          <th {...thProps('revenue')}>Выручка ₽</th>
+          <th {...thProps('avg_price')}>Ср. цена</th>
+          <th {...thProps('days_since_buy')}>Дней ⌀</th>
+          <th {...thProps('shops_count')}>Магаз.</th>
+          <th>Пол</th>
+          <th {...thProps('age')}>Возр.</th>
+          <th {...thProps('sms_count')}>SMS</th>
+        </tr></thead>
+        <tbody>{sorted.slice(0,500).map((c,i)=><tr key={i}>
+          <td style={{fontFamily:"monospace",fontSize:13}}>{c.clientPhone}</td>
+          <td><SegBadge seg={c.segment}/></td>
+          <td style={{textAlign:"right"}}>{c.real_visits}</td>
+          <td style={{textAlign:"right"}}>{c.gift_visits}</td>
+          <td style={{textAlign:"right"}}>{fmt(c.revenue)}</td>
+          <td style={{textAlign:"right"}}>{fmt(c.avg_price)}</td>
+          <td style={{textAlign:"right"}}>{c.days_since_buy!=null?c.days_since_buy:"—"}</td>
+          <td style={{textAlign:"right"}}>{c.shops_count}</td>
+          <td>{c.gender||"—"}</td>
+          <td style={{textAlign:"right"}}>{c.age||"—"}</td>
+          <td style={{textAlign:"right"}}>{c.sms_count}</td>
+        </tr>)}</tbody>
+      </table></div>
+      {filtered.length>500&&<div style={{padding:"10px 18px",fontSize:12,color:"var(--gold-dim)"}}>Показано 500 из {fmt(filtered.length)}. Используйте фильтры или экспорт CSV для полного списка.</div>}
+    </div>
+  </div>;
+
+  var segColors={"VIP":"#fbbf24","Лояльный":"#4ade80","Активный":"#60a5fa","Спящий":"#fb923c","Потерянный":"#f87171","Халявщик":"#a78bfa","Потенциальный":"#2dd4bf"};
+}
+
+/* ── TAB 3: SMS Optimization ── */
+function SmsTab({clients,loading}){
+  if(loading) return <Spinner/>;
+
+  const enriched = useMemo(()=>{
+    return (clients||[]).map(c=>({...c,
+      segment:assignSegment(c),
+      real_visits:Number(c.real_visits)||0,
+      gift_visits:Number(c.gift_visits)||0,
+      revenue:Number(c.revenue)||0,
+      days_since_buy:c.days_since_buy!=null?Number(c.days_since_buy):null,
+      sms_count:Number(c.sms_count)||0,
+    }));
+  },[clients]);
+
+  // SMS recommendations
+  const smsPlan = useMemo(()=>{
+    const plan = {
+      send:[],     // Отправлять SMS
+      pause:[],    // Пауза
+      noSend:[],   // Не отправлять
+    };
+    enriched.forEach(c=>{
+      const s = c.segment;
+      // VIP и Лояльные — отправляем
+      if(s==="VIP"||s==="Лояльный") plan.send.push(c);
+      // Активные и Спящие — отправляем (возвращаем)
+      else if(s==="Активный"||s==="Спящий") plan.send.push(c);
+      // Потерянные — пауза (можно попробовать раз в 2-3 месяца)
+      else if(s==="Потерянный") plan.pause.push(c);
+      // Халявщики — не отправляем (экономия)
+      else if(s==="Халявщик") plan.noSend.push(c);
+      // Потенциальные без покупок — не отправляем
+      else plan.noSend.push(c);
+    });
+    return plan;
+  },[enriched]);
+
+  const costPerSMS = 8;
+  const giftCost = 120;
+  const conversionRate = 0.15; // ~15% доходят до магазина
+
+  const currentTotal = enriched.length;
+  const optimizedTotal = smsPlan.send.length;
+  const saved = currentTotal - optimizedTotal;
+
+  const currentCost = currentTotal * costPerSMS;
+  const optimizedCost = optimizedTotal * costPerSMS;
+  const smsSavings = saved * costPerSMS;
+
+  // Халявщики, которых исключаем — экономия на подарках
+  const freebieCount = smsPlan.noSend.filter(c=>c.segment==="Халявщик").length;
+  const giftSavings = Math.round(freebieCount * conversionRate * giftCost);
+
+  const copyPhones = (list) => {
+    const phones = list.map(c=>c.clientPhone).join("\n");
+    navigator.clipboard.writeText(phones).then(()=>alert(`${list.length} номеров скопировано!`));
+  };
+
+  const exportList = (list, name) => {
+    const header = "Телефон;Сегмент;Покупки;Подарки;Выручка;Дней_без_покупки\n";
+    const rows = list.map(c=>[c.clientPhone,c.segment,c.real_visits,c.gift_visits,c.revenue,c.days_since_buy||""].join(";")).join("\n");
+    const blob=new Blob(["\uFEFF"+header+rows],{type:"text/csv;charset=utf-8"});
+    const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`sms_${name}.csv`;a.click();
+  };
+
+  return <div className="fade-in">
+    {/* Savings KPI */}
+    <div className="kpi-grid">
+      <div className="kpi">
+        <div className="kpi-label">Сейчас получают SMS</div>
+        <div className="kpi-value">{fmt(currentTotal)}</div>
+        <div className="kpi-sub">стоимость {fmtK(currentCost)} ₽ / рассылка</div>
+      </div>
+      <div className="kpi">
+        <div className="kpi-label">Рекомендуем отправлять</div>
+        <div className="kpi-value" style={{color:"var(--green)"}}>{fmt(optimizedTotal)}</div>
+        <div className="kpi-sub">стоимость {fmtK(optimizedCost)} ₽ / рассылка</div>
+      </div>
+      <div className="kpi">
+        <div className="kpi-label">Экономия на SMS</div>
+        <div className="kpi-value" style={{color:"var(--green)"}}>{fmtK(smsSavings)} ₽</div>
+        <div className="kpi-sub">{fmt(saved)} меньше SMS за рассылку</div>
+      </div>
+      <div className="kpi">
+        <div className="kpi-label">Экономия на подарках</div>
+        <div className="kpi-value" style={{color:"var(--green)"}}>~{fmtK(giftSavings)} ₽</div>
+        <div className="kpi-sub">{fmt(freebieCount)} халявщиков исключено</div>
+      </div>
+    </div>
+
+    {/* Three lists */}
+    {[
+      {title:"✅ Отправлять SMS",desc:"VIP, Лояльные, Активные, Спящие — с высокой вероятностью покупки",list:smsPlan.send,name:"send",color:"var(--green)"},
+      {title:"⏸ Пауза (раз в 2-3 мес.)",desc:"Потерянные — давно не покупали, но есть история покупок",list:smsPlan.pause,name:"pause",color:"var(--orange)"},
+      {title:"🚫 Не отправлять",desc:"Халявщики и Потенциальные без покупок — низкая отдача",list:smsPlan.noSend,name:"nosend",color:"var(--red)"},
+    ].map(({title,desc,list,name,color})=><div className="tbl-wrap" key={name}>
+      <div className="tbl-title">
+        <div>
+          <span style={{color}}>{title}</span>
+          <span style={{color:"var(--gold-dim)",fontSize:12,marginLeft:10}}>({fmt(list.length)} клиентов)</span>
+          <div style={{fontSize:11,color:"var(--gold-dim)",marginTop:2}}>{desc}</div>
+        </div>
+        <div style={{display:"flex",gap:8}}>
+          <button className="btn-export" onClick={()=>copyPhones(list)}>Копировать номера</button>
+          <button className="btn-export" onClick={()=>exportList(list,name)}>CSV ↓</button>
+        </div>
+      </div>
+      <div className="tbl-scroll" style={{maxHeight:300}}><table>
+        <thead><tr><th>Телефон</th><th>Сегмент</th><th style={{textAlign:"right"}}>Покупки</th><th style={{textAlign:"right"}}>Подарки</th><th style={{textAlign:"right"}}>Выручка</th><th style={{textAlign:"right"}}>Дней ⌀</th></tr></thead>
+        <tbody>{list.slice(0,200).map((c,i)=><tr key={i}>
+          <td style={{fontFamily:"monospace",fontSize:13}}>{c.clientPhone}</td>
+          <td><SegBadge seg={c.segment}/></td>
+          <td style={{textAlign:"right"}}>{c.real_visits}</td>
+          <td style={{textAlign:"right"}}>{c.gift_visits}</td>
+          <td style={{textAlign:"right"}}>{fmt(c.revenue)}</td>
+          <td style={{textAlign:"right"}}>{c.days_since_buy!=null?c.days_since_buy:"—"}</td>
+        </tr>)}</tbody>
+      </table></div>
+      {list.length>200&&<div style={{padding:"8px 18px",fontSize:12,color:"var(--gold-dim)"}}>Показано 200 из {fmt(list.length)}. Экспортируйте CSV для полного списка.</div>}
+    </div>)}
+  </div>;
+}
+
+/* ── Dashboard Shell ── */
+function Dashboard(){
+  const [tab,setTab]=useState("overview");
+  const [clients,setClients]=useState([]);
+  const [loading,setLoading]=useState(true);
+
+  useEffect(()=>{
+    (async()=>{
+      try{
+        const data = await queryDB("SELECT * FROM client_stats");
+        setClients(data);
+      }catch(e){console.error("Load error:",e);}
+      setLoading(false);
+    })();
+  },[]);
+
+  const tabs=[
+    {id:"overview",label:"Обзор"},
+    {id:"rfm",label:"RFM-сегменты"},
+    {id:"sms",label:"SMS-оптимизация"},
+  ];
+
+  const now=new Date();
+  const ts=now.toLocaleDateString("ru-RU")+" "+now.toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+
+  return <>
+    <div className="header">
+      <div className="header-top">
+        <div className="logo"><span>◆</span> СИЛЬВЕР · АНАЛИТИКА ПОКУПАТЕЛЕЙ</div>
+      </div>
+      <h1>Покупательское поведение</h1>
+      <div className="subtitle">RFM-анализ · Сегментация · SMS-оптимизация · {fmt(clients.length)} клиентов</div>
+      <div className="tabs">
+        {tabs.map(t=><button key={t.id} className={`tbtn${tab===t.id?" on":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>)}
+      </div>
+    </div>
+    <div className="content">
+      {tab==="overview"&&<OverviewTab clients={clients} loading={loading}/>}
+      {tab==="rfm"&&<RfmTab clients={clients} loading={loading}/>}
+      {tab==="sms"&&<SmsTab clients={clients} loading={loading}/>}
+    </div>
+    <div className="footer">
+      <span>СИЛЬВЕР · ПОКУПАТЕЛИ · {ts}</span>
+      <button onClick={()=>{sessionStorage.removeItem("silver_auth");window.location.reload();}}>Выйти</button>
+    </div>
+  </>;
+}
+
+/* ── App ── */
+function App(){
+  const [auth,setAuth]=useState(!!sessionStorage.getItem("silver_auth"));
+  if(!auth) return <LoginScreen onLogin={()=>setAuth(true)}/>;
+  return <Dashboard/>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
