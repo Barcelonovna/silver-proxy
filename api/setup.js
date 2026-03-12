@@ -24,9 +24,9 @@ async function getDB() {
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
-  // Защита секретом
+  // Простая защита — жёстко заданный секрет
   const { secret } = req.query;
-  if (secret !== process.env.PRECOMPUTE_SECRET) {
+  if (secret !== 'silver2026setup') {
     return res.status(403).json({ error: 'Invalid secret' });
   }
 
