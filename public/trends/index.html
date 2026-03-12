@@ -42,7 +42,8 @@
 
   .layout { display:flex; flex:1; overflow:hidden; min-height:0; }
 
-  .left-panel { width:185px; min-width:185px; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; }
+  /* ── LEFT PANEL ── */
+  .left-panel { width:190px; min-width:190px; background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; flex-shrink:0; }
   .lp-head { padding:7px 10px 5px; font-size:9px; letter-spacing:.1em; color:var(--gold-dim); text-transform:uppercase; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; flex-shrink:0; }
   .lp-head button { background:none; border:none; color:#5a5040; cursor:pointer; font-size:10px; font-family:inherit; }
   .lp-head button:hover { color:var(--gold); }
@@ -50,12 +51,26 @@
   .lp-search input { width:100%; background:rgba(212,175,55,0.04); border:1px solid var(--border); color:var(--text); font-family:inherit; font-size:11px; padding:3px 7px; border-radius:3px; outline:none; }
   .lp-search input:focus { border-color:rgba(212,175,55,0.35); }
   .lp-list { overflow-y:auto; flex:1; }
-  .coll-item { display:flex; align-items:center; gap:5px; padding:4px 8px; transition:background .12s; }
+
+  /* Секция-разделитель в списке коллекций */
+  .lp-section-head { padding:5px 8px 3px; font-size:9px; letter-spacing:.1em; text-transform:uppercase; color:#3a3520; border-top:1px solid var(--border); margin-top:2px; display:flex; justify-content:space-between; align-items:center; }
+  .lp-section-head.promo { color:#3a3520; }
+  .lp-section-toggle { background:none; border:none; color:#3a3520; font-size:9px; font-family:inherit; cursor:pointer; padding:0; }
+  .lp-section-toggle:hover { color:var(--gold-dim); }
+
+  /* Обычный элемент коллекции */
+  .coll-item { display:flex; align-items:center; gap:5px; padding:3px 8px; transition:background .12s; cursor:pointer; }
   .coll-item:hover { background:var(--gold-faint); }
   .coll-item input[type=checkbox] { accent-color:var(--gold); cursor:pointer; flex-shrink:0; width:12px; height:12px; }
   .coll-item label { font-size:11px; color:var(--text); cursor:pointer; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1; }
-  .coll-item.excluded label { color:#3a3520; text-decoration:line-through; }
-  .block-btn { background:none; border:none; cursor:pointer; font-size:11px; padding:0; flex-shrink:0; line-height:1; }
+
+  /* Приоритетные коллекции */
+  .coll-item.priority label { color:var(--gold); font-size:12px; }
+  .coll-item.priority { padding:4px 8px; }
+
+  /* Промо-коллекции (внизу) */
+  .coll-item.promo label { color:#4a4535; font-size:11px; }
+  .coll-item.promo input[type=checkbox] { accent-color:#6a5a40; }
 
   .center { flex:1; overflow-y:auto; padding:10px 12px; display:flex; flex-direction:column; gap:10px; min-width:0; }
 
@@ -77,15 +92,8 @@
   .cs-legend { display:flex; gap:8px; }
   .cs-li { display:flex; align-items:center; gap:3px; font-size:10px; }
 
-  /* SVG chart tooltip */
   .chart-wrap { position:relative; }
-  .svg-tooltip {
-    position:absolute; pointer-events:none;
-    background:#18160f; border:1px solid rgba(212,175,55,0.25);
-    border-radius:5px; padding:7px 10px; font-size:11px;
-    box-shadow:0 4px 16px rgba(0,0,0,0.5); min-width:140px; z-index:10;
-    transition: opacity .1s;
-  }
+  .svg-tooltip { position:absolute; pointer-events:none; background:#18160f; border:1px solid rgba(212,175,55,0.25); border-radius:5px; padding:7px 10px; font-size:11px; box-shadow:0 4px 16px rgba(0,0,0,0.5); min-width:140px; z-index:10; }
   .stt-month { font-size:10px; color:var(--gold-dim); margin-bottom:5px; padding-bottom:4px; border-bottom:1px solid var(--border); }
   .stt-row { display:flex; align-items:center; justify-content:space-between; gap:10px; padding:1px 0; }
   .stt-row.cur { background:rgba(212,175,55,0.07); border-radius:3px; padding:1px 3px; margin:0 -3px; }
@@ -136,11 +144,49 @@ const PROXY_URL = "https://silver-proxy.vercel.app/api/query";
 const AUTH_URL  = "https://silver-proxy.vercel.app/api/auth";
 const EXCLUDE   = "warehouseName NOT IN ('ИМ-курьеры', 'Склад ОЗОН', 'ИМ-отгрузка')";
 
-const YEARS = [2022,2023,2024,2025,2026];
-const YC = {2022:'#5b7fe8',2023:'#e05555',2024:'#3cb371',2025:'#d4af37',2026:'#999'};
+const YEARS    = [2022,2023,2024,2025,2026];
+const YC       = {2022:'#5b7fe8',2023:'#e05555',2024:'#3cb371',2025:'#d4af37',2026:'#999'};
 const MONTHS_S = ['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
 const MONTHS   = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
 const SHOPS    = ['Аэропорт','БУМ','Варшавский','Дружба','Дружба ИМ','Европейский','Калейдоскоп','Калужский','Колумбус','Ладья','Речной','Щёлковский'];
+
+// ── Логика коллекций ───────────────────────────────────────────────
+
+// Группы: отображаемое имя → реальные collectionArticle в БД
+const COL_GROUPS = {
+  'САРКИСЯН': ['Сарксисян', 'Саркисян без скидка', 'Саркисян Бриллианты'],
+};
+
+// Приоритетные — идут первыми, золотом
+const PRIORITY_COLS = ['Вечные ценности', 'Яффо', 'САРКИСЯН', 'Полудраги Питер'];
+
+// Промо-коллекции: по умолчанию выключены, вынесены в отдельную секцию внизу
+const PROMO_EXACT = ['Промо', 'Сувениры'];
+const isPromo = name => name.toLowerCase().includes('упаковка') || PROMO_EXACT.includes(name);
+
+// Реальные названия → отображаемое имя
+function toDisplay(raw) {
+  for (const [grp, members] of Object.entries(COL_GROUPS)) {
+    if (members.includes(raw)) return grp;
+  }
+  return raw;
+}
+
+// Отображаемое имя → реальные collectionArticle для SQL
+function toReal(displayName) {
+  return COL_GROUPS[displayName] || [displayName];
+}
+
+// Из сырого списка БД строим список отображаемых коллекций (дедупликация групп)
+function buildDisplayList(rawList) {
+  const seen = new Set();
+  const result = [];
+  for (const raw of rawList) {
+    const disp = toDisplay(raw);
+    if (!seen.has(disp)) { seen.add(disp); result.push(disp); }
+  }
+  return result;
+}
 
 async function queryDB(sql) {
   const r = await fetch(PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql})});
@@ -149,17 +195,11 @@ async function queryDB(sql) {
   return j.data||[];
 }
 
-const fmt = n => {
-  if (!n||isNaN(n)) return '—';
-  if (n>=1e9) return (n/1e9).toFixed(1).replace('.',',')+' МЛД ₽';
-  if (n>=1e6) return (n/1e6).toFixed(1).replace('.',',')+' М ₽';
-  if (n>=1e3) return Math.round(n/1e3)+'К ₽';
-  return Math.round(n)+' ₽';
-};
-const fmtN  = n => (!n||isNaN(n)) ? '—' : Math.round(n).toLocaleString('ru');
-const fmtP  = n => (!n||isNaN(n)) ? '—' : Math.round(n).toLocaleString('ru')+' ₽';
+const fmt  = n => { if(!n||isNaN(n))return'—'; if(n>=1e9)return(n/1e9).toFixed(1).replace('.',',')+' МЛД ₽'; if(n>=1e6)return(n/1e6).toFixed(1).replace('.',',')+' М ₽'; if(n>=1e3)return Math.round(n/1e3)+'К ₽'; return Math.round(n)+' ₽'; };
+const fmtN = n => (!n||isNaN(n))?'—':Math.round(n).toLocaleString('ru');
+const fmtP = n => (!n||isNaN(n))?'—':Math.round(n).toLocaleString('ru')+' ₽';
 const fmtTick = n => n>=1e6?(n/1e6).toFixed(0)+'М':n>=1e3?(n/1e3).toFixed(0)+'К':String(Math.round(n));
-const pct   = (a,b) => (!a||!b) ? null : Math.round((a-b)/b*100);
+const pct  = (a,b) => (!a||!b)?null:Math.round((a-b)/b*100);
 
 // ── Login ──────────────────────────────────────────────────────────
 function LoginScreen({onLogin}) {
@@ -205,46 +245,33 @@ function KpiCard({label,value,prev,prevYear,fmtFn,color}) {
   );
 }
 
-// ── SVG Line Chart ─────────────────────────────────────────────────
-function SvgChart({data, metricKey, fmtFn, currentYear, title}) {
+// ── SVG Chart ─────────────────────────────────────────────────────
+function SvgChart({data, metricKey, fmtFn, currentYear}) {
   const svgRef = useRef(null);
-  const [tooltip, setTooltip] = useState(null); // {x,y,moIdx,values}
+  const [tooltip, setTooltip] = useState(null);
   const W=700, H=160, PL=46, PR=12, PT=8, PB=22;
   const cW=W-PL-PR, cH=H-PT-PB;
   const n = data.length;
 
-  // compute min/max across all years
   const allVals = useMemo(()=>{
     const v=[];
     data.forEach(row=>YEARS.forEach(yr=>{ const val=row[`${yr}_${metricKey}`]; if(val!=null&&val>0) v.push(val); }));
     return v;
   },[data,metricKey]);
   const maxV = allVals.length ? Math.max(...allVals)*1.08 : 1;
-  const minV = 0;
 
   const xPos = i => PL + (n<=1 ? cW/2 : i/(n-1)*cW);
-  const yPos = v => PT + cH - ((v-minV)/(maxV-minV))*cH;
+  const yPos = v => PT + cH - (v/maxV)*cH;
 
-  // Build path for each year
-  const buildPath = (yr) => {
-    let d=''; let first=true;
-    data.forEach((row,i)=>{
-      const v=row[`${yr}_${metricKey}`];
-      if(v==null||v===0){first=true;return;}
-      const x=xPos(i), y=yPos(v);
-      d += first?`M${x},${y}`:`L${x},${y}`;
-      first=false;
-    });
+  const buildPath = yr => {
+    let d='', first=true;
+    data.forEach((row,i)=>{ const v=row[`${yr}_${metricKey}`]; if(!v){first=true;return;} d+=first?`M${xPos(i)},${yPos(v)}`:`L${xPos(i)},${yPos(v)}`; first=false; });
     return d;
   };
 
-  // Area path for current year (filled)
-  const buildArea = (yr) => {
+  const buildArea = yr => {
     const pts=[];
-    data.forEach((row,i)=>{
-      const v=row[`${yr}_${metricKey}`];
-      if(v!=null&&v>0) pts.push([xPos(i),yPos(v)]);
-    });
+    data.forEach((row,i)=>{ const v=row[`${yr}_${metricKey}`]; if(v>0) pts.push([xPos(i),yPos(v)]); });
     if(!pts.length) return '';
     let d=`M${pts[0][0]},${PT+cH}`;
     pts.forEach(([x,y])=>{ d+=`L${x},${y}`; });
@@ -252,99 +279,57 @@ function SvgChart({data, metricKey, fmtFn, currentYear, title}) {
     return d;
   };
 
-  // Y-axis ticks
-  const yTicks = useMemo(()=>{
-    const ticks=[]; const steps=4;
-    for(let i=0;i<=steps;i++) ticks.push(minV+(maxV-minV)*i/steps);
-    return ticks;
-  },[maxV]);
+  const yTicks = useMemo(()=>Array.from({length:5},(_,i)=>maxV*i/4),[maxV]);
 
-  // Mouse move handler
-  const handleMouseMove = useCallback((e)=>{
-    const svg = svgRef.current;
-    if(!svg||!n) return;
+  const handleMouseMove = useCallback(e=>{
+    const svg=svgRef.current; if(!svg||!n) return;
     const rect=svg.getBoundingClientRect();
     const mx=(e.clientX-rect.left)/rect.width*W;
-    // find closest month index
-    let best=0, bestDist=Infinity;
-    for(let i=0;i<n;i++){
-      const d=Math.abs(xPos(i)-mx);
-      if(d<bestDist){bestDist=d;best=i;}
-    }
+    let best=0, bestD=Infinity;
+    for(let i=0;i<n;i++){ const d=Math.abs(xPos(i)-mx); if(d<bestD){bestD=d;best=i;} }
     const row=data[best];
-    const values=YEARS.map(yr=>({yr,val:row[`${yr}_${metricKey}`]||null,color:YC[yr]}))
-      .filter(v=>v.val!=null&&v.val>0)
-      .sort((a,b)=>b.val-a.val);
-    // tooltip position
-    const sx=xPos(best)/W*rect.width+rect.left;
-    const sy=rect.top+PT;
-    setTooltip({clientX:e.clientX,clientY:e.clientY,moIdx:best,values,monthName:MONTHS_S[best]});
+    const values=YEARS.map(yr=>({yr,val:row[`${yr}_${metricKey}`]||null,color:YC[yr]})).filter(v=>v.val>0).sort((a,b)=>b.val-a.val);
+    const tipX = Math.min(e.clientX - rect.left + 12, W*0.55);
+    setTooltip({tipX, moIdx:best, values});
   },[data,n,metricKey]);
-
-  const handleMouseLeave = () => setTooltip(null);
 
   if(!data.length) return <div className="no-data">Нет данных</div>;
 
-  const gradId=`ag_${metricKey}`;
-
   return (
-    <div className="chart-wrap" style={{position:'relative'}}>
+    <div className="chart-wrap">
       <svg ref={svgRef} viewBox={`0 0 ${W} ${H}`} style={{width:'100%',height:H,display:'block',cursor:'crosshair'}}
-        onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave}>
+        onMouseMove={handleMouseMove} onMouseLeave={()=>setTooltip(null)}>
         <defs>
-          <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <linearGradient id={`ag_${metricKey}`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor={YC[currentYear]} stopOpacity="0.18"/>
             <stop offset="100%" stopColor={YC[currentYear]} stopOpacity="0"/>
           </linearGradient>
         </defs>
-        {/* Grid */}
         {yTicks.map((v,i)=>(
           <g key={i}>
             <line x1={PL} x2={W-PR} y1={yPos(v)} y2={yPos(v)} stroke="rgba(212,175,55,0.06)" strokeDasharray="2 5"/>
             <text x={PL-4} y={yPos(v)+3} textAnchor="end" fontSize={9} fill="#5a5040">{fmtTick(v)}</text>
           </g>
         ))}
-        {/* X labels */}
         {data.map((row,i)=>(
           <text key={i} x={xPos(i)} y={H-4} textAnchor="middle" fontSize={9} fill="#5a5040">{row.name}</text>
         ))}
-        {/* Vertical hover line */}
-        {tooltip && (
-          <line x1={xPos(tooltip.moIdx)} x2={xPos(tooltip.moIdx)} y1={PT} y2={PT+cH}
-            stroke="rgba(212,175,55,0.15)" strokeDasharray="2 4"/>
-        )}
-        {/* Area for current year */}
-        <path d={buildArea(currentYear)} fill={`url(#${gradId})`}/>
-        {/* Lines - background years first */}
+        {tooltip&&<line x1={xPos(tooltip.moIdx)} x2={xPos(tooltip.moIdx)} y1={PT} y2={PT+cH} stroke="rgba(212,175,55,0.15)" strokeDasharray="2 4"/>}
+        <path d={buildArea(currentYear)} fill={`url(#ag_${metricKey})`}/>
         {YEARS.filter(yr=>yr!==currentYear).map(yr=>(
           <path key={yr} d={buildPath(yr)} fill="none" stroke={YC[yr]} strokeWidth="1.2" strokeOpacity="0.4"/>
         ))}
-        {/* Current year line on top */}
         <path d={buildPath(currentYear)} fill="none" stroke={YC[currentYear]} strokeWidth="2.5"/>
-        {/* Hover dots */}
-        {tooltip && YEARS.map(yr=>{
-          const row=data[tooltip.moIdx];
-          const v=row?.[`${yr}_${metricKey}`];
-          if(!v||v===0) return null;
-          return <circle key={yr} cx={xPos(tooltip.moIdx)} cy={yPos(v)} r={yr===currentYear?4:3}
-            fill={YC[yr]} stroke="#0f0e0b" strokeWidth="1.5" opacity={yr===currentYear?1:0.6}/>;
+        {tooltip&&YEARS.map(yr=>{ const v=data[tooltip.moIdx]?.[`${yr}_${metricKey}`]; if(!v) return null;
+          return <circle key={yr} cx={xPos(tooltip.moIdx)} cy={yPos(v)} r={yr===currentYear?4:3} fill={YC[yr]} stroke="#0f0e0b" strokeWidth="1.5" opacity={yr===currentYear?1:0.6}/>;
         })}
       </svg>
-      {/* Tooltip */}
-      {tooltip && (
-        <div className="svg-tooltip" style={{
-          left: tooltip.clientX + 12,
-          top: 8,
-          position:'absolute',
-          left: Math.min(tooltip.clientX - (svgRef.current?.getBoundingClientRect().left||0) + 12, W*0.55),
-        }}>
+      {tooltip&&(
+        <div className="svg-tooltip" style={{left:tooltip.tipX, top:8}}>
           <div className="stt-month">{MONTHS[tooltip.moIdx]}</div>
           {tooltip.values.map(({yr,val,color})=>(
             <div key={yr} className={`stt-row${yr===currentYear?' cur':''}`}>
-              <div className="stt-yr">
-                <div className="stt-dot" style={{background:color}}/>
-                <span style={{color:yr===currentYear?'var(--gold)':'#6a5e48',fontWeight:yr===currentYear?600:400}}>{yr}</span>
-              </div>
+              <div className="stt-yr"><div className="stt-dot" style={{background:color}}/><span style={{color:yr===currentYear?'var(--gold)':'#6a5e48',fontWeight:yr===currentYear?600:400}}>{yr}</span></div>
               <span className="stt-val" style={{color:yr===currentYear?'var(--text)':'#8a7a60'}}>{fmtFn(val)}</span>
             </div>
           ))}
@@ -355,25 +340,22 @@ function SvgChart({data, metricKey, fmtFn, currentYear, title}) {
 }
 
 function Chart({data,metricKey,fmtFn,title,currentYear,loading}) {
-  const Legend = () => (
-    <div className="cs-legend">
-      {YEARS.map(yr=>{
-        const cur=yr===currentYear;
-        return (
-          <div className="cs-li" key={yr}>
-            <div style={{width:cur?20:14,height:cur?3:1.5,borderRadius:2,background:YC[yr],opacity:cur?1:0.5}}/>
-            <span style={{color:cur?YC[yr]:'#5a5040',fontWeight:cur?600:400,fontSize:10}}>{yr}</span>
-          </div>
-        );
-      })}
-    </div>
-  );
   return (
     <div className="chart-section">
-      <div className="cs-head"><span className="cs-title">{title}</span><Legend/></div>
+      <div className="cs-head">
+        <span className="cs-title">{title}</span>
+        <div className="cs-legend">
+          {YEARS.map(yr=>{ const cur=yr===currentYear; return (
+            <div className="cs-li" key={yr}>
+              <div style={{width:cur?20:14,height:cur?3:1.5,borderRadius:2,background:YC[yr],opacity:cur?1:0.5}}/>
+              <span style={{color:cur?YC[yr]:'#5a5040',fontWeight:cur?600:400,fontSize:10}}>{yr}</span>
+            </div>
+          );})}
+        </div>
+      </div>
       {loading
         ? <div className="spinner-wrap"><div className="spinner"/><span style={{color:'#a0936a',fontSize:11}}>Загрузка...</span></div>
-        : <SvgChart data={data} metricKey={metricKey} fmtFn={fmtFn} currentYear={currentYear} title={title}/>
+        : <SvgChart data={data} metricKey={metricKey} fmtFn={fmtFn} currentYear={currentYear}/>
       }
     </div>
   );
@@ -386,29 +368,39 @@ function Dashboard() {
   const [selYear,  setSelYear]  = useState(CY);
   const [selMonth, setSelMonth] = useState(null);
   const [selShops, setSelShops] = useState(new Set(SHOPS));
-  const [allCols,  setAllCols]  = useState([]);
-  const [selCols,  setSelCols]  = useState(new Set());
-  const [blocked,  setBlocked]  = useState(new Set());
+  const [allCols,  setAllCols]  = useState([]); // отображаемые имена (после дедупликации групп)
+  const [selCols,  setSelCols]  = useState(new Set()); // выбранные отображаемые имена
+  const [promoOpen,setPromoOpen]= useState(false); // секция промо раскрыта?
   const [search,   setSearch]   = useState('');
   const [rawData,  setRawData]  = useState(null);
   const [loading,  setLoading]  = useState(false);
   const [error,    setError]    = useState('');
 
+  // Загрузка коллекций из БД
   useEffect(()=>{
     queryDB(`SELECT DISTINCT collectionArticle FROM sales WHERE ${EXCLUDE} AND collectionArticle IS NOT NULL AND collectionArticle!='' ORDER BY collectionArticle`)
-      .then(rows=>{ const c=rows.map(r=>r.collectionArticle).filter(Boolean); setAllCols(c); setSelCols(new Set(c)); })
-      .catch(()=>{});
+      .then(rows=>{
+        const raw = rows.map(r=>r.collectionArticle).filter(Boolean);
+        const disp = buildDisplayList(raw);
+        setAllCols(disp);
+        // По умолчанию: все обычные включены, промо — выключены
+        const initSel = new Set(disp.filter(c=>!isPromo(c)));
+        setSelCols(initSel);
+      }).catch(()=>{});
   },[]);
 
+  // Загрузка данных
   useEffect(()=>{
-    const shops=[...selShops], cols=[...selCols].filter(c=>!blocked.has(c));
-    if(!shops.length||!cols.length){setRawData({});return;}
+    const shops=[...selShops];
+    // Все реальные названия для выбранных коллекций
+    const realCols = [...selCols].flatMap(c=>toReal(c));
+    if(!shops.length||!realCols.length){setRawData({});return;}
     let dead=false;
     (async()=>{
       setLoading(true); setError('');
       try {
         const sl=shops.map(s=>`'${s.replace(/'/g,"''")}'`).join(',');
-        const cl=cols.map(c=>`'${c.replace(/'/g,"''")}'`).join(',');
+        const cl=realCols.map(c=>`'${c.replace(/'/g,"''")}'`).join(',');
         const mc=selMonth!=null?`AND MONTH(docDate)=${selMonth+1}`:'';
         const res=await Promise.all(YEARS.map(yr=>queryDB(`
           SELECT ${yr} AS yr, MONTH(docDate) AS mo, SUM(sum) AS revenue, SUM(quantity) AS qty
@@ -425,7 +417,7 @@ function Dashboard() {
       if(!dead)setLoading(false);
     })();
     return()=>{dead=true;};
-  },[selMonth,selShops,selCols,blocked]);
+  },[selMonth,selShops,selCols]);
 
   const chartData = useMemo(()=>{
     if(!rawData)return[];
@@ -445,15 +437,37 @@ function Dashboard() {
     return t;
   },[rawData,selMonth]);
 
-  const activeCols = useMemo(()=>[...selCols].filter(c=>!blocked.has(c)),[selCols,blocked]);
-  const filtCols   = useMemo(()=>allCols.filter(c=>!search||c.toLowerCase().includes(search.toLowerCase())),[allCols,search]);
+  // Разбиваем коллекции на 3 группы для отображения
+  const { prioCols, regularCols, promoCols } = useMemo(()=>{
+    const prio=[], regular=[], promo=[];
+    // Сначала приоритетные (в заданном порядке)
+    PRIORITY_COLS.forEach(c=>{ if(allCols.includes(c)) prio.push(c); });
+    // Остальные
+    allCols.forEach(c=>{
+      if(PRIORITY_COLS.includes(c)) return;
+      if(isPromo(c)) promo.push(c);
+      else regular.push(c);
+    });
+    return {prioCols:prio, regularCols:regular, promoCols:promo};
+  },[allCols]);
+
+  // Фильтрация по поиску
+  const filterCols = cols => !search ? cols : cols.filter(c=>c.toLowerCase().includes(search.toLowerCase()));
 
   const togShop = s=>{const ns=new Set(selShops);ns.has(s)?ns.delete(s):ns.add(s);setSelShops(ns);};
   const togColl = c=>{const ns=new Set(selCols);ns.has(c)?ns.delete(c):ns.add(c);setSelCols(ns);};
-  const togBlk  = c=>{const ns=new Set(blocked);ns.has(c)?ns.delete(c):ns.add(c);setBlocked(ns);};
 
-  const kpiC=totals[selYear]||{}, kpiP=totals[selYear-1]||{};
+  const activeCols = [...selCols]; // все выбранные (включая промо если включены)
+  const activeNonPromo = activeCols.filter(c=>!isPromo(c));
   const periodLabel = selMonth!=null?`${MONTHS[selMonth]} ${selYear}`:`${selYear} · все месяцы`;
+  const kpiC=totals[selYear]||{}, kpiP=totals[selYear-1]||{};
+
+  const CollItem = ({c, className=''}) => (
+    <div className={`coll-item ${className}`} key={c}>
+      <input type="checkbox" id={`c_${c}`} checked={selCols.has(c)} onChange={()=>togColl(c)}/>
+      <label htmlFor={`c_${c}`}>{c}</label>
+    </div>
+  );
 
   return (
     <div style={{display:'flex',flexDirection:'column',height:'100vh',overflow:'hidden'}}>
@@ -468,7 +482,7 @@ function Dashboard() {
         </div>
         <div className="header-row2">
           <div className="header-title">Тренды год к году</div>
-          <div className="header-sub">{periodLabel} · {activeCols.length} кол. · {selShops.size} маг.</div>
+          <div className="header-sub">{periodLabel} · {activeNonPromo.length} кол. · {selShops.size} маг.</div>
         </div>
         <div className="shop-bar">
           <button className={`sbtn sbtn-all${selShops.size===SHOPS.length?' on':''}`}
@@ -484,43 +498,56 @@ function Dashboard() {
       </div>
 
       <div className="layout">
-        {/* LEFT */}
+        {/* LEFT — коллекции */}
         <div className="left-panel">
           <div className="lp-head">
-            <span>Коллекции ({activeCols.length})</span>
+            <span>Коллекции</span>
             <div style={{display:'flex',gap:8}}>
-              <button onClick={()=>setSelCols(new Set(allCols))}>Все</button>
+              <button onClick={()=>setSelCols(new Set(allCols.filter(c=>!isPromo(c))))}>Все</button>
               <button onClick={()=>setSelCols(new Set())}>Сброс</button>
             </div>
           </div>
-          <div className="lp-search"><input placeholder="Поиск..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+          <div className="lp-search">
+            <input placeholder="Поиск..." value={search} onChange={e=>setSearch(e.target.value)}/>
+          </div>
           <div className="lp-list">
-            {!allCols.length&&<div style={{padding:14,color:'#444',fontSize:11,textAlign:'center'}}>Загрузка...</div>}
-            {filtCols.map(c=>{
-              const blk=blocked.has(c), sel=selCols.has(c);
-              return (
-                <div key={c} className={`coll-item${blk?' excluded':''}`} title={c}>
-                  <input type="checkbox" id={`c_${c}`} checked={sel&&!blk} onChange={()=>togColl(c)} disabled={blk}/>
-                  <label htmlFor={`c_${c}`}>{c}</label>
-                  <button className="block-btn" title={blk?'Снять':'Заблокировать'} onClick={()=>togBlk(c)} style={{color:blk?'#f87171':'#2e2b22'}}>{blk?'✕':'⊘'}</button>
-                </div>
-              );
-            })}
+            {!allCols.length && <div style={{padding:14,color:'#444',fontSize:11,textAlign:'center'}}>Загрузка...</div>}
+
+            {/* ── Приоритетные ── */}
+            {filterCols(prioCols).map(c=><CollItem key={c} c={c} className="priority"/>)}
+
+            {/* Разделитель если есть и приоритетные и обычные */}
+            {prioCols.length>0 && regularCols.length>0 && !search && (
+              <div style={{height:1,background:'var(--border)',margin:'4px 0'}}/>
+            )}
+
+            {/* ── Обычные ── */}
+            {filterCols(regularCols).map(c=><CollItem key={c} c={c}/>)}
+
+            {/* ── Промо секция внизу ── */}
+            {promoCols.length>0 && !search && (
+              <div className="lp-section-head promo">
+                <span>Промо / Упаковка</span>
+                <button className="lp-section-toggle" onClick={()=>setPromoOpen(o=>!o)}>
+                  {promoOpen ? '▲' : '▼'}
+                </button>
+              </div>
+            )}
+            {promoOpen && !search && filterCols(promoCols).map(c=><CollItem key={c} c={c} className="promo"/>)}
+
+            {/* Если поиск попал в промо — показываем их без секции */}
+            {search && filterCols(promoCols).map(c=><CollItem key={c} c={c} className="promo"/>)}
           </div>
         </div>
 
         {/* CENTER */}
         <div className="center">
           {error&&<div className="err-bar">{error}</div>}
-
-          {/* KPI */}
           <div className="kpi-row">
             <KpiCard label={`Выручка ${selYear}`} value={kpiC.revenue} prev={kpiP.revenue} prevYear={selYear-1} fmtFn={fmt} color={YC[selYear]}/>
-            <KpiCard label={`Количество ${selYear}`} value={kpiC.qty} prev={kpiP.qty} prevYear={selYear-1}
-              fmtFn={n=>!n?'—':Math.round(n).toLocaleString('ru')+' шт'} color={YC[selYear]}/>
+            <KpiCard label={`Количество ${selYear}`} value={kpiC.qty} prev={kpiP.qty} prevYear={selYear-1} fmtFn={n=>!n?'—':Math.round(n).toLocaleString('ru')+' шт'} color={YC[selYear]}/>
             <KpiCard label={`Средняя цена ${selYear}`} value={kpiC.price} prev={kpiP.price} prevYear={selYear-1} fmtFn={fmtP} color={YC[selYear]}/>
           </div>
-
           <Chart data={chartData} metricKey="rev"   fmtFn={fmt}  title="ВЫРУЧКА"       currentYear={selYear} loading={loading}/>
           <Chart data={chartData} metricKey="qty"   fmtFn={v=>fmtN(v)+' шт'} title="КОЛИЧЕСТВО" currentYear={selYear} loading={loading}/>
           <Chart data={chartData} metricKey="price" fmtFn={fmtP} title="СРЕДНЯЯ ЦЕНА"  currentYear={selYear} loading={loading}/>
