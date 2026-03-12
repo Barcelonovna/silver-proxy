@@ -1,11 +1,13 @@
 {
   "version": 2,
   "functions": {
-    "api/query.js": { "maxDuration": 15 },
-    "api/sheets.js": { "maxDuration": 10 }
+    "api/query.js":          { "maxDuration": 15 },
+    "api/sheets.js":         { "maxDuration": 10 },
+    "api/precompute.js":     { "maxDuration": 60 },
+    "api/customers-data.js": { "maxDuration": 15 }
   },
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
-    { "src": "/(.*)", "dest": "/public/$1" }
+    { "src": "/(.*)",     "dest": "/public/$1" }
   ]
 }
